@@ -6,9 +6,10 @@ metadata: {"clawdbot":{"emoji":"🔎","homepage":"https://desearch.ai","requires
 
 # AI Search By Desearch
 
-AI-powered multi-source search that aggregates results from web, Reddit, Hacker News, YouTube, ArXiv, Wikipedia, and X/Twitter — returning either summarized answers or curated links.
+AI-powered multi-source search that aggregates results from web, Reddit, Hacker News, YouTube, ArXiv, Wikipedia, and X/Twitter — returning either 
+summarized answers or curated links.
 
-## Setup
+## Quick Start
 
 1. Get an API key from https://console.desearch.ai
 2. Set environment variable: `export DESEARCH_API_KEY='your-key-here'`
@@ -17,13 +18,13 @@ AI-powered multi-source search that aggregates results from web, Reddit, Hacker 
 
 ```bash
 # AI contextual search (summarized results from multiple sources)
-scripts/desearch.py ai_search "What is Bittensor?" --tools web,reddit,youtube
+desearch.py ai_search "What is Bittensor?" --tools web,reddit,youtube
 
 # AI web link search (curated links from specific sources)
-scripts/desearch.py ai_web "machine learning papers" --tools arxiv,web,wikipedia
+desearch.py ai_web "machine learning papers" --tools arxiv,web,wikipedia
 
 # AI X/Twitter link search (curated post links)
-scripts/desearch.py ai_x "crypto market trends" --count 20
+desearch.py ai_x "crypto market trends" --count 20
 ```
 
 ## Commands
@@ -46,26 +47,96 @@ scripts/desearch.py ai_x "crypto market trends" --count 20
 
 ### Research a topic with AI summary
 ```bash
-scripts/desearch.py ai_search "What are the latest developments in quantum computing?" --tools web,arxiv,reddit
+desearch.py ai_search "What are the latest developments in quantum computing?" --tools web,arxiv,reddit
 ```
 
 ### Find academic papers
 ```bash
-scripts/desearch.py ai_web "transformer architecture improvements 2025" --tools arxiv,web
+desearch.py ai_web "transformer architecture improvements 2025" --tools arxiv,web
 ```
 
 ### Get recent news from multiple sources
 ```bash
-scripts/desearch.py ai_search "AI regulation news" --tools web,hackernews,reddit --date-filter PAST_WEEK
+desearch.py ai_search "AI regulation news" --tools web,hackernews,reddit --date-filter PAST_WEEK
 ```
 
 ### Find YouTube tutorials
 ```bash
-scripts/desearch.py ai_web "learn rust programming" --tools youtube,web
+desearch.py ai_web "learn rust programming" --tools youtube,web
 ```
 
 ### AI-curated X/Twitter links on a topic
 ```bash
-scripts/desearch.py ai_x "latest AI breakthroughs" --count 15
+desearch.py ai_x "latest AI breakthroughs" --count 15
 ```
 
+## Response
+
+### Example (truncated)
+```json
+{
+  "tweets": [
+    {
+      "id": "2023465890369728573",
+      "text": "Superposition allows qubits to encode multiple possibilities...",
+      "url": "https://x.com/rukky_003/status/2023465890369728573",
+      "created_at": "2026-02-16T18:33:57.000Z",
+      "like_count": 5,
+      "retweet_count": 0,
+      "view_count": 155,
+      "reply_count": 0,
+      "quote_count": 2,
+      "lang": "en",
+      "is_retweet": false,
+      "is_quote_tweet": true,
+      "media": [],
+      "user": {
+        "id": "1316260427190472704",
+        "username": "rukky_003",
+        "name": "RuqoCrypto 🧠",
+        "url": "https://x.com/rukky_003",
+        "followers_count": 2424,
+        "verified": false,
+        "is_blue_verified": true
+      }
+    }
+  ],
+  "search": [
+    {
+      "title": "What Is Quantum Computing? | IBM",
+      "link": "https://www.ibm.com/think/topics/quantum-computing",
+      "snippet": "Quantum computers take advantage of quantum mechanics..."
+    }
+  ],
+  "miner_link_scores": {
+    "2023465890369728573": "HIGH",
+    "https://www.ibm.com/think/topics/quantum-computing": "MEDIUM"
+  },
+  "completion": "Quantum computing uses qubits that leverage superposition and entanglement to compute in fundamentally different ways than classical computers..."
+}
+```
+
+### Notes
+- `miner_link_scores` keys are tweet IDs for Twitter results and full URLs for web results. Values are `"HIGH"`, `"MEDIUM"`, or `"LOW"`.
+- `media` is always an array; empty `[]` when no media is attached.
+- `completion` is always a string; empty string `""` if summarization fails.
+
+### Errors
+Status 401, Unauthorized (e.g., missing/invalid API key)
+```json
+{
+  "detail": "Invalid or missing API key"
+}
+```
+
+Status 402, Payment Required (e.g., balance depleted)
+```json
+{
+  "detail": "Insufficient balance, please add funds to your account to continue using the service."
+}
+```
+
+
+## Resources
+- [API Reference](https://desearch.ai/docs/api-reference/post-desearch-ai-search)
+- [Desearch Console](https://console.desearch.ai)
