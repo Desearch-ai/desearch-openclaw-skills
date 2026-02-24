@@ -52,7 +52,7 @@ desearch.py ai_search "What are the latest developments in quantum computing?" -
 
 ### Find academic papers
 ```bash
-desearch.py ai_web "transformer architecture improvements 2025" --tools arxiv,web
+desearch.py ai_web "transformer architecture improvements 2026" --tools arxiv,web
 ```
 
 ### Get recent news from multiple sources
@@ -67,7 +67,7 @@ desearch.py ai_web "learn rust programming" --tools youtube,web
 
 ### AI-curated X/Twitter links on a topic
 ```bash
-desearch.py ai_x "latest AI breakthroughs" --count 15
+desearch.py ai_x "latest AI breakthroughs" --count 20
 ```
 
 ## Response
