@@ -1,8 +1,13 @@
 # Known Issues
 
+Status legend:
+- ⚠️ present limitation
+- ❌ missing capability
+- 🚧 improvement opportunity
+
 This page documents issues visible from the current repository contents and CLI implementations.
 
-## 1. No Docker files are checked in
+## 1. ❌ No Docker files are checked in
 
 **Impact:** The repo is easy to run as raw Python scripts, but it is not self-documenting for local container builds.
 
@@ -10,7 +15,7 @@ This page documents issues visible from the current repository contents and CLI 
 
 **Why it matters:** The skills are a natural fit for containerized OpenClaw deployments, but new contributors do not get a canonical image/build path from the repo itself.
 
-## 2. No automated tests or smoke checks
+## 2. ❌ No automated tests or smoke checks
 
 **Impact:** Endpoint changes, response-shape changes, or argument parsing regressions could land without detection.
 
@@ -18,7 +23,7 @@ This page documents issues visible from the current repository contents and CLI 
 
 **Why it matters:** These wrappers depend on external API contracts. A contract change on `api.desearch.ai` would only be discovered during manual use.
 
-## 3. Output formatter helpers are currently unused
+## 3. ⚠️ Output formatter helpers are currently unused
 
 **Affected files:**
 - `desearch-ai-search/scripts/desearch.py`
@@ -29,7 +34,7 @@ This page documents issues visible from the current repository contents and CLI 
 
 **Why it matters:** The codebase suggests a nicer text presentation was planned, but current CLI behavior is JSON-only.
 
-## 4. Shared HTTP/auth logic is duplicated four times
+## 4. 🚧 Shared HTTP/auth logic is duplicated four times
 
 **Impact:** Fixes to headers, timeout handling, or error parsing must be repeated in every script.
 
@@ -41,7 +46,7 @@ This page documents issues visible from the current repository contents and CLI 
 
 **Why it matters:** This increases maintenance cost and makes behavior drift more likely over time.
 
-## 5. `desearch-x-search` has the least clean CLI argument model
+## 5. ⚠️ `desearch-x-search` has the least clean CLI argument model
 
 **Impact:** The `x_urls` command works, but its positional argument handling is more awkward than the rest of the repo.
 
@@ -49,10 +54,17 @@ This page documents issues visible from the current repository contents and CLI 
 
 **Why it matters:** It is functional, but less explicit than a dedicated multi-value positional design would be.
 
-## 6. Repo-level dependency/runtime metadata is minimal
+## 6. ⚠️ Repo-level dependency/runtime metadata is minimal
 
 **Impact:** There is no single machine-readable source of truth for runtime versioning.
 
 **Evidence:** No `pyproject.toml`, `requirements.txt`, or `package.json` is present.
 
 **Why it matters:** The scripts are standard-library only today, which keeps things simple, but contributors must infer runtime expectations from the shebang and code instead of reading an explicit manifest.
+
+## Current severity snapshot
+
+- ✅ Core CLI wrappers are present for all four skills
+- ⚠️ Usability/documentation gaps are larger than implementation gaps
+- ❌ Project-level packaging and automated verification are still absent
+- 🚧 The cleanest future refactor is a shared helper module for request/auth/error handling

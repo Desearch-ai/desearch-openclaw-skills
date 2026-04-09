@@ -69,6 +69,8 @@ The control flow is nearly identical in all scripts:
 6. The response body is decoded and parsed as JSON when possible
 7. `main()` prints the JSON result
 
+That last step matters because the repository contains formatter helpers in several files, but the current runtime path is still JSON-first rather than text-first.
+
 ## Endpoint mapping
 
 | Skill | Commands | HTTP method | Endpoint |
@@ -86,6 +88,16 @@ The control flow is nearly identical in all scripts:
 | `desearch-x-search` | `x_retweeters` | GET | `/twitter/post/retweeters` |
 | `desearch-x-search` | `x_replies` | GET | `/twitter/replies` |
 | `desearch-x-search` | `x_post_replies` | GET | `/twitter/replies/post` |
+
+## Interface consistency notes
+
+The repo is structurally consistent, but not perfectly uniform at the CLI boundary:
+
+- ✅ Every wrapper uses `argparse`, `DESEARCH_API_KEY`, and `https://api.desearch.ai`
+- ✅ Every wrapper centralizes outbound requests in a local `api_request()` helper
+- ⚠️ Some commands use `user`, while `x_timeline` uses `username` because the underlying endpoint expects a different parameter name
+- ⚠️ `x_urls` is implemented as a special-case argument rewrite in `main()` instead of a cleaner dedicated parser shape
+- 🚧 Pretty-printer helpers exist in multiple files, but they are not yet wired into the active output path
 
 ## Skill configuration
 
@@ -124,6 +136,15 @@ What is not present:
 - No image build instructions in the repo itself
 
 So the current architecture is best described as **Docker-compatible Python skill scripts**, not a fully self-contained Dockerized project.
+
+## Operational profile
+
+| Concern | Status | Notes |
+|---|---|---|
+| Standard-library only runtime | ✅ | No third-party Python dependencies are required by the checked-in scripts. |
+| Container-ready configuration | ✅ | Environment-variable auth and executable scripts fit container mounts well. |
+| Self-contained project packaging | ❌ | No Dockerfile, dependency manifest, or CI workflow is checked in. |
+| Shared internal library | 🚧 | Repeated request/auth logic has not yet been extracted. |
 
 ## Design characteristics
 

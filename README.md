@@ -2,6 +2,15 @@
 
 Python-based OpenClaw skills for Desearch search and crawling APIs. This repo packages four skills as standalone `SKILL.md` manifests plus executable `scripts/desearch.py` entrypoints.
 
+## Status at a glance
+
+- ✅ Four skill manifests are present and documented
+- ✅ Four executable Python wrappers are present
+- ⚠️ Output is JSON-first today, even where formatter helpers exist
+- ⚠️ No automated tests or CI are checked in
+- ❌ No Docker assets are checked in
+- 🚧 Shared request logic has not been extracted into a common module
+
 ## What is in this repo
 
 - `desearch-ai-search/` , AI-powered aggregated search across multiple sources
@@ -53,6 +62,14 @@ python3 desearch-x-search/scripts/desearch.py x_user elonmusk --query "AI" --cou
 
 ## Skills available
 
+| Skill | Commands | Transport | Status |
+|---|---|---|---|
+| `desearch-ai-search` | `ai_search`, `ai_web`, `ai_x` | POST | ✅ |
+| `desearch-crawl` | `crawl` | GET | ✅ |
+| `desearch-web-search` | `web` | GET | ✅ |
+| `desearch-x-search` | `x`, `x_post`, `x_urls`, `x_user`, `x_timeline`, `x_retweeters`, `x_replies`, `x_post_replies` | GET | ⚠️ |
+
+
 ### `desearch-ai-search`
 - Commands: `ai_search`, `ai_web`, `ai_x`
 - API routes:
@@ -90,6 +107,19 @@ python3 desearch-x-search/scripts/desearch.py x_user elonmusk --query "AI" --cou
 - The scripts fail fast when `DESEARCH_API_KEY` is missing
 - Error handling is implemented for HTTP errors, URL failures, and non-JSON responses
 - The CLIs currently print raw JSON responses, even though some files contain unused text-formatting helpers
+- `desearch-x-search` has the broadest surface area and the least consistent argument contract, especially around `x_urls`
+- The repository is easiest to think of as a set of mountable OpenClaw skills, not a fully packaged Python project
+
+## Verification shortcuts
+
+These commands match the current repo layout and are useful when reviewing future changes:
+
+```bash
+find . -maxdepth 2 -name 'SKILL.md' -o -path '*/scripts/desearch.py'
+./desearch-web-search/scripts/desearch.py web "desearch api"
+./desearch-crawl/scripts/desearch.py crawl "https://example.com"
+./desearch-x-search/scripts/desearch.py x "AI" --sort Latest --count 5
+```
 
 ## Docs
 

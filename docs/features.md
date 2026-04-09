@@ -15,6 +15,8 @@ Status legend:
 | Shared auth pattern | ✅ | Every script reads `DESEARCH_API_KEY` and exits with a clear error when it is missing. |
 | Local packaging | ⚠️ | No `Dockerfile`, `docker-compose.yml`, `package.json`, or `pyproject.toml` is present in the repo. |
 | Automated verification | ⚠️ | No tests or CI config are present in the repository. |
+| Human-readable output path | ⚠️ | Three scripts define formatter helpers, but the active entrypoints still print JSON. |
+| Code reuse | 🚧 | Request/auth/error handling remains duplicated across all four wrappers. |
 
 ## `desearch-ai-search`
 
@@ -36,6 +38,7 @@ Evidence from code:
 
 Notes:
 - The script includes text-formatting helpers, but the current `main()` path prints JSON output directly.
+- `ai_search` defaults to `twitter` and `web` when `--tools` is omitted, while `ai_web` defaults only to `web`, so the two AI search entrypoints are not symmetric.
 
 ## `desearch-crawl`
 
@@ -70,6 +73,7 @@ Evidence from code:
 
 Notes:
 - Functionality appears complete for a thin API wrapper, but output formatting is raw JSON today.
+- Because `--start` defaults to `0`, pagination behavior is simple to reason about and is the cleanest in the repo.
 
 ## `desearch-x-search`
 
@@ -91,6 +95,7 @@ Evidence from code:
 - Eight commands are registered in `COMMANDS`
 - Each command maps to a dedicated `/twitter...` endpoint
 - `main()` special-cases `x_urls` by prepending `query` into `args.urls`
+- `x_timeline` sends `username`, while several sibling commands send `user`, so the parameter contract varies by endpoint rather than by a single internal naming model
 
 ## Gaps not implemented in this repo
 
