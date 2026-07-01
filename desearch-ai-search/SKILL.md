@@ -41,7 +41,12 @@ desearch.py ai_x "crypto market trends" --count 20
 |--------|-------------|------------|
 | `--tools`, `-t` | Sources to search: `web`, `hackernews`, `reddit`, `wikipedia`, `youtube`, `arxiv`, `twitter` (comma-separated) | Both |
 | `--count`, `-n` | Number of results (default: 10, max: 200) | All |
-| `--date-filter` | Time filter: `PAST_24_HOURS`, `PAST_2_DAYS`, `PAST_WEEK`, `PAST_2_WEEKS`, `PAST_MONTH`, `PAST_2_MONTHS`, `PAST_YEAR`, `PAST_2_YEARS` | `ai_search` |
+| `--start-date` | Start of date range, UTC `YYYY-MM-DDTHH:MM:SSZ` | `ai_search` |
+| `--end-date` | End of date range, UTC `YYYY-MM-DDTHH:MM:SSZ` | `ai_search` |
+| `--date-filter` | Deprecated relative window (`PAST_24_HOURS` … `PAST_2_YEARS`); prefer `--start-date`/`--end-date` | `ai_search` |
+| `--result-type` | `ONLY_LINKS` or `LINKS_WITH_FINAL_SUMMARY` | `ai_search` |
+| `--include-domains` | Restrict Web Search results to these domains (comma-separated) | `ai_search` |
+| `--exclude-domains` | Drop Web Search results from these domains (comma-separated) | `ai_search` |
 
 ## Examples
 
@@ -58,6 +63,13 @@ desearch.py ai_web "transformer architecture improvements 2026" --tools arxiv,we
 ### Get recent news from multiple sources
 ```bash
 desearch.py ai_search "AI regulation news" --tools web,hackernews,reddit --date-filter PAST_WEEK
+```
+
+### Restrict to a date range and specific domains
+```bash
+desearch.py ai_search "central bank digital currency" --tools web \
+  --start-date 2025-05-01T00:00:00Z --end-date 2025-05-08T00:00:00Z \
+  --include-domains reuters.com,bbc.com --result-type ONLY_LINKS
 ```
 
 ### Find YouTube tutorials
