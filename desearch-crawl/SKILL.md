@@ -1,12 +1,14 @@
 ---
 name: desearch-crawl
-description: Crawl/scrape and extract content from any webpage URL. Returns the page content as clean text or raw HTML. Use this when you need to read the full contents of a specific web page.
+description: Deprecated compatibility skill for existing Desearch crawl integrations. It still extracts clean text or raw HTML through the legacy endpoint; use desearch-extract for new integrations.
 metadata: {"clawdbot":{"emoji":"🕷️","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
-# Crawl Webpage By Desearch
+# Legacy Crawl Webpage By Desearch
 
 Extract content from any webpage URL. Returns clean text or raw HTML.
+
+> Deprecated: this skill remains functional for existing integrations through `GET /web/crawl`. Use `desearch-extract` and `GET /web/extract` for new integrations.
 
 ## Quick Start
 
