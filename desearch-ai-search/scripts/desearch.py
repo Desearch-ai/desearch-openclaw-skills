@@ -36,6 +36,8 @@ DATE_FILTERS = [
     "PAST_2_YEARS",
 ]
 
+RESULT_TYPES = ["ONLY_LINKS", "LINKS_WITH_FINAL_SUMMARY"]
+
 
 def get_api_key() -> str:
     key = os.environ.get("DESEARCH_API_KEY")
@@ -95,9 +97,23 @@ def cmd_ai_search(args):
         body["tools"] = ["twitter", "web"]
 
     if args.count:
-        body["result_count"] = args.count
+        body["count"] = args.count
     if args.date_filter:
         body["date_filter"] = args.date_filter
+    if args.start_date:
+        body["start_date"] = args.start_date
+    if args.end_date:
+        body["end_date"] = args.end_date
+    if args.result_type:
+        body["result_type"] = args.result_type
+    if args.include_domains:
+        body["include_domains"] = [
+            d.strip() for d in args.include_domains.split(",") if d.strip()
+        ]
+    if args.exclude_domains:
+        body["exclude_domains"] = [
+            d.strip() for d in args.exclude_domains.split(",") if d.strip()
+        ]
     return api_request("POST", "/desearch/ai/search", body=body)
 
 
@@ -239,7 +255,26 @@ def main():
         help="Comma-separated list of tools: web,hackernews,reddit,wikipedia,youtube,arxiv,twitter",
     )
     parser.add_argument(
-        "--date-filter", choices=DATE_FILTERS, help="Date filter for AI search"
+        "--date-filter",
+        choices=DATE_FILTERS,
+        help="Deprecated date filter (AI search); prefer --start-date/--end-date",
+    )
+    parser.add_argument(
+        "--start-date", help="Start of date range, UTC YYYY-MM-DDTHH:MM:SSZ (AI search)"
+    )
+    parser.add_argument(
+        "--end-date", help="End of date range, UTC YYYY-MM-DDTHH:MM:SSZ (AI search)"
+    )
+    parser.add_argument(
+        "--result-type", choices=RESULT_TYPES, help="Result type (AI search)"
+    )
+    parser.add_argument(
+        "--include-domains",
+        help="Comma-separated domains to restrict Web Search results to (AI search)",
+    )
+    parser.add_argument(
+        "--exclude-domains",
+        help="Comma-separated domains to drop from Web Search results (AI search)",
     )
 
     args = parser.parse_args()
