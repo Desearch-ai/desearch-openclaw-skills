@@ -1,13 +1,14 @@
 # Desearch OpenClaw Skills
 
-A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](https://desearch.ai) real-time search and web crawling capabilities to OpenClaw.
+A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](https://desearch.ai) real-time search and webpage extraction capabilities to OpenClaw.
 
 ## Skills
 
 | Skill | Emoji | Description |
 |-------|-------|-------------|
 | [desearch-ai-search](desearch-ai-search/) | 🔎 | AI-powered search aggregating results from web, X/Twitter, Reddit, Hacker News, YouTube, ArXiv, and Wikipedia — with summarized answers or curated links |
-| [desearch-crawl](desearch-crawl/) | 🕷️ | Crawl any webpage and extract clean text or raw HTML |
+| [desearch-extract](desearch-extract/) | 📄 | Extract clean text or raw HTML from any webpage through the canonical Extract API |
+| [desearch-crawl](desearch-crawl/) | 🕷️ | Deprecated compatibility skill for existing crawl integrations |
 | [desearch-web-search](desearch-web-search/) | 🌐 | Real-time web search returning SERP-style results with titles, URLs, and snippets |
 | [desearch-x-search](desearch-x-search/) | 𝕏 | Real-time X (Twitter) search — posts, timelines, replies, retweeters with advanced filters |
 
@@ -27,8 +28,8 @@ Each skill uses a `scripts/desearch.py` entry point. Examples:
 # AI-summarized multi-source search
 desearch-ai-search/scripts/desearch.py ai_search "What is Bittensor?" --tools web,reddit,youtube
 
-# Crawl a webpage
-desearch-crawl/scripts/desearch.py crawl "https://en.wikipedia.org/wiki/Artificial_intelligence"
+# Extract a webpage
+desearch-extract/scripts/desearch.py extract "https://en.wikipedia.org/wiki/Artificial_intelligence"
 
 # Web search
 desearch-web-search/scripts/desearch.py web "latest AI news"
@@ -38,3 +39,5 @@ desearch-x-search/scripts/desearch.py x "AI breakthroughs" --sort Latest --count
 ```
 
 See each skill's `SKILL.md` for full documentation, options, and examples.
+
+Existing `desearch-crawl` installations remain functional through the deprecated `GET /web/crawl` compatibility route. Use `desearch-extract` for new integrations.

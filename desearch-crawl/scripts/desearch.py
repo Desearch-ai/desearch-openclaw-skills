@@ -9,6 +9,8 @@ Environment:
     DESEARCH_API_KEY - Required API key from desearch.ai
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
