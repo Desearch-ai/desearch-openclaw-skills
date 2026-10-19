@@ -1,16 +1,16 @@
 # Desearch OpenClaw Skills
 
-A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](https://desearch.ai) real-time search and webpage extraction capabilities to OpenClaw.
+A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](https://desearch.ai) search and webpage extraction capabilities to OpenClaw.
 
 ## Skills
 
 | Skill | Emoji | Description |
 |-------|-------|-------------|
-| [desearch-ai-search](desearch-ai-search/) | 🔎 | AI-powered search aggregating results from web, X/Twitter, Reddit, Hacker News, YouTube, ArXiv, and Wikipedia — with summarized answers or curated links |
+| [desearch-ai-search](desearch-ai-search/) | 🔎 | AI search that summarizes results from web, X, Reddit, Hacker News, YouTube, arXiv and Wikipedia, with links to the sources |
 | [desearch-extract](desearch-extract/) | 📄 | Extract clean text or raw HTML from any webpage through the canonical Extract API |
 | [desearch-crawl](desearch-crawl/) | 🕷️ | Deprecated compatibility skill for existing crawl integrations |
-| [desearch-web-search](desearch-web-search/) | 🌐 | Real-time web search returning SERP-style results with titles, URLs, and snippets |
-| [desearch-x-search](desearch-x-search/) | 𝕏 | Real-time X (Twitter) search — posts, timelines, replies, retweeters with advanced filters |
+| [desearch-web-search](desearch-web-search/) | 🌐 | Search the web and get SERP-style results with titles, URLs and snippets. Use this for general web queries when you need links to sources. |
+| [desearch-x-search](desearch-x-search/) | 𝕏 | Search X (Twitter) posts by keyword, user or hashtag. Get a user's timeline, replies or retweeters, or fetch specific posts by ID or URL. |
 
 ## Requirements
 

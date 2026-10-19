@@ -63,7 +63,7 @@ Artificial intelligence (AI) is the capability of computational systems to perfo
 ```
 
 ### Notes
-- Response is plain text or raw HTML — not JSON.
+- Response is plain text or raw HTML, not JSON.
 - Default format is `text`. Use `--crawl-format html` only when you need to inspect page structure.
 - Prefer `text` format to avoid bloating the agent context with markup.
 
