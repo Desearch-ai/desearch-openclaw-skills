@@ -1,12 +1,12 @@
 ---
 name: desearch-x-search
-description: Search X (Twitter) in real time. Find posts by keyword, user, or hashtag. Get a user's timeline, replies, retweeters, or fetch specific posts by ID or URL. Supports advanced filters like date range, language, engagement thresholds, and media type.
+description: Search X (Twitter) posts by keyword, user or hashtag. Get a user's timeline, replies or retweeters, or fetch specific posts by ID or URL. Supports advanced filters like date range, language, engagement thresholds, and media type.
 metadata: {"clawdbot":{"emoji":"𝕏","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # X (Twitter) Search By Desearch
 
-Real-time X/Twitter search and monitoring. Search posts, track users, get timelines, replies, and retweeters with powerful filtering.
+Search X (Twitter) posts by keyword, user or hashtag. Get a user's timeline, replies or retweeters, or fetch specific posts by ID or URL. Supports advanced filters like date range, language, engagement thresholds, and media type.
 
 ## Setup
 
@@ -36,11 +36,11 @@ All tweet-returning endpoints share these shapes. Fields marked `*` are always p
 | `conversation_id` | string\|null | Thread ID |
 | `in_reply_to_screen_name` | string\|null | Username of post being replied to |
 | `in_reply_to_status_id` | string\|null | ID of post being replied to |
-| `media` | array\|null | `[{media_url, type}]` — type: `photo`, `video`, `animated_gif` |
+| `media` | array\|null | `[{media_url, type}]` (type: `photo`, `video`, `animated_gif`) |
 | `entities` | object\|null | `{hashtags, symbols, urls, user_mentions}` |
 | `quote` | Tweet\|null | Nested quoted tweet |
 | `retweet` | Tweet\|null | Original tweet _(timeline endpoint only)_ |
-| `user` | User\|null | Post author — see User below |
+| `user` | User\|null | Post author (see User below) |
 
 ### User
 | Field | Type | Description |
@@ -61,7 +61,7 @@ All tweet-returning endpoints share these shapes. Fields marked `*` are always p
 
 ## Endpoints
 
-### `x` — Search Posts
+### `x`: Search Posts
 
 Search X posts by keyword, hashtag, or user with engagement filters.
 
@@ -92,7 +92,7 @@ scripts/desearch.py x "crypto" --min-likes 100 --verified --lang en
 **Response:** `Tweet[]`
 
 
-### `x_post` — Retrieve Post by ID
+### `x_post`: Retrieve Post by ID
 
 Fetch a single post by its numeric ID.
 
@@ -103,7 +103,7 @@ scripts/desearch.py x_post 1892527552029499853
 **Response:** `Tweet`
 
 
-### `x_urls` — Fetch Posts by URLs
+### `x_urls`: Fetch Posts by URLs
 
 Retrieve one or more posts by their X URLs.
 
@@ -114,7 +114,7 @@ scripts/desearch.py x_urls "https://x.com/user/status/123" "https://x.com/user/s
 **Response:** `Tweet[]`
 
 
-### `x_user` — Search Posts by User
+### `x_user`: Search Posts by User
 
 Search within a specific user's posts for a keyword.
 
@@ -131,7 +131,7 @@ scripts/desearch.py x_user elonmusk --query "AI" --count 10
 **Response:** `Tweet[]`
 
 
-### `x_timeline` — Get User Timeline
+### `x_timeline`: Get User Timeline
 
 Fetch the most recent posts from a user's timeline. Retweets include a `retweet` field with the original post.
 
@@ -147,7 +147,7 @@ scripts/desearch.py x_timeline elonmusk --count 20
 **Response:** `{ user: User, tweets: Tweet[] }`
 
 
-### `x_retweeters` — Get Retweeters of a Post
+### `x_retweeters`: Get Retweeters of a Post
 
 List users who retweeted a specific post. Supports cursor-based pagination.
 
@@ -161,10 +161,10 @@ scripts/desearch.py x_retweeters 1982770537081532854 --cursor "AAAAANextCursorVa
 |--------|-------------|
 | `--cursor` | Pagination cursor from a previous response |
 
-**Response:** `{ users: User[], next_cursor: string|null }` — `next_cursor` is `null` when no more pages remain.
+**Response:** `{ users: User[], next_cursor: string|null }`. `next_cursor` is `null` when no more pages remain.
 
 
-### `x_replies` — Get User's Replies
+### `x_replies`: Get User's Replies
 
 Fetch a user's tweets-and-replies timeline. Replies have `in_reply_to_screen_name` and `in_reply_to_status_id` set.
 
@@ -182,7 +182,7 @@ scripts/desearch.py x_replies elonmusk --query "AI" --count 10
 **Response:** `Tweet[]`
 
 
-### `x_post_replies` — Get Replies to a Post
+### `x_post_replies`: Get Replies to a Post
 
 Fetch replies to a specific post by ID.
 
