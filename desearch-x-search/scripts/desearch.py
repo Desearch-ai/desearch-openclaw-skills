@@ -7,11 +7,13 @@ Usage:
 
 Commands:
     x, x_post, x_urls, x_user, x_timeline,
-    x_retweeters, x_replies, x_post_replies
+    x_retweeters, x_replies, x_post_replies, x_trends
 
 Environment:
     DESEARCH_API_KEY - Required API key from desearch.ai
 """
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -32,7 +34,11 @@ COMMANDS = [
     "x_retweeters",
     "x_replies",
     "x_post_replies",
+    "x_trends",
 ]
+
+# GET /twitter/trends accepts 30 to 100 trends per request.
+TRENDS_COUNT_RANGE = (30, 100)
 
 
 def get_api_key() -> str:
@@ -167,6 +173,21 @@ def cmd_x_post_replies(args):
     return api_request("GET", "/twitter/replies/post", params=params)
 
 
+def cmd_x_trends(args):
+    try:
+        woeid = int(args.query)
+    except ValueError:
+        return {
+            "error": "x_trends needs a numeric WOEID, e.g. 1 for Worldwide "
+            "or 23424977 for the United States"
+        }
+    minimum, maximum = TRENDS_COUNT_RANGE
+    if args.count is not None and not minimum <= args.count <= maximum:
+        return {"error": f"--count for x_trends must be between {minimum} and {maximum}"}
+    params = {"woeid": woeid, "count": args.count}
+    return api_request("GET", "/twitter/trends", params=params)
+
+
 COMMAND_HANDLERS = {
     "x": cmd_x,
     "x_post": cmd_x_post,
@@ -176,6 +197,7 @@ COMMAND_HANDLERS = {
     "x_retweeters": cmd_x_retweeters,
     "x_replies": cmd_x_replies,
     "x_post_replies": cmd_x_post_replies,
+    "x_trends": cmd_x_trends,
 }
 
 
@@ -221,10 +243,11 @@ TEXT_FORMATTERS = {
     "x_retweeters": lambda d: json.dumps(d, indent=2),
     "x_replies": format_tweets,
     "x_post_replies": format_tweets,
+    "x_trends": lambda d: json.dumps(d, indent=2),
 }
 
 
-def main():
+def main(argv: list[str] | None = None):
     parser = argparse.ArgumentParser(
         description="Desearch X (Twitter) Search CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -232,7 +255,8 @@ def main():
     )
     parser.add_argument("command", choices=COMMANDS, help="Command to execute")
     parser.add_argument(
-        "query", help="Search query, post ID, username, or URL (depending on command)"
+        "query",
+        help="Search query, post ID, username, URL, or WOEID (depending on command)",
     )
     parser.add_argument(
         "urls", nargs="*", help="Additional URLs (for x_urls command)"
@@ -274,7 +298,7 @@ def main():
         "--query", "-q", dest="extra_query", help="Additional query filter"
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.command == "x_urls":
         args.urls = [args.query] + (args.urls or [])
