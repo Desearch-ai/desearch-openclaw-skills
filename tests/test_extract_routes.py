@@ -78,6 +78,27 @@ class ExtractRouteTests(unittest.TestCase):
             },
         )
 
+    def test_markdown_format_is_accepted(self):
+        with (
+            patch.object(
+                self.extract_script, "api_request", return_value="# Page"
+            ) as request,
+            patch(
+                "sys.argv",
+                [
+                    "desearch.py",
+                    "extract",
+                    "https://desearch.ai",
+                    "--format",
+                    "markdown",
+                ],
+            ),
+            patch("builtins.print"),
+        ):
+            self.extract_script.main()
+
+        self.assertEqual(request.call_args.kwargs["params"]["format"], "markdown")
+
     def test_legacy_skill_keeps_calling_crawl_route(self):
         args = SimpleNamespace(
             url="https://desearch.ai",

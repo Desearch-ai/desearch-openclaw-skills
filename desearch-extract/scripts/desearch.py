@@ -100,9 +100,9 @@ def main():
     parser.add_argument(
         "--format",
         dest="output_format",
-        choices=["text", "html"],
+        choices=["text", "markdown", "html"],
         default="text",
-        help="Output format (default: text)",
+        help="Output format: text, markdown or html (default: text)",
     )
     parser.add_argument(
         "--js",
@@ -117,7 +117,7 @@ def main():
     parser.add_argument(
         "--full-page",
         action="store_true",
-        help="Return all visible text of the page instead of its main content",
+        help="With --format text, return all visible text of the page instead of its main content",
     )
 
     args = parser.parse_args()
