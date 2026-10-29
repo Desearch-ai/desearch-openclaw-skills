@@ -19,6 +19,9 @@ Extract content from a public webpage URL as clean text or raw HTML.
 # Extract clean text (default)
 scripts/desearch.py extract "https://en.wikipedia.org/wiki/Artificial_intelligence"
 
+# Extract markdown (headings, lists, tables and code)
+scripts/desearch.py extract "https://en.wikipedia.org/wiki/Artificial_intelligence" --format markdown
+
 # Extract raw HTML
 scripts/desearch.py extract "https://example.com" --format html
 
@@ -33,14 +36,14 @@ scripts/desearch.py extract "https://peles.ro/en/program-si-taxe/" --full-page
 
 | Option | Description |
 |--------|-------------|
-| `--format` | Output content format: `text` (default) or `html` |
+| `--format` | Output content format: `text` (default), `markdown` or `html` |
 | `--js` | Render JavaScript before extracting content |
 | `--wait` | Extra post-load wait in milliseconds, from 0 to 30000; used with `--js` |
-| `--full-page` | With `text`, return all visible text of the page, one block per line, instead of its main content |
+| `--full-page` | Only with `text`: return all visible text of the page, one block per line, instead of its main content |
 
 ## Response
 
-The response is plain text or raw HTML, not JSON. Prefer `text` unless page markup is specifically required. `text` is the page's main content; when the facts you need may sit in tables, tabs or notices outside the main article, use `--full-page`.
+The response is plain text, markdown or raw HTML, not JSON. Prefer `markdown` when headings, lists or tables matter, `text` for plain prose, and `html` only when page markup is specifically required. `text` is the page's main content; when the facts you need may sit in tables, tabs or notices outside the main article, use `--full-page`.
 
 ## Errors
 
