@@ -12,6 +12,7 @@ People Search is **billed** and **asynchronous**:
 
 - `people_search` starts a background task and returns a `task_id` at once, with no people in it yet. It is the only billed command.
 - The search usually takes 1 to 5 minutes. Poll it with `people_wait` or `people_task`, read people with `people_results` (they arrive while the search runs), and download them with `people_export`.
+- Everyone your searches found on a platform stays in a free library: list it with `people_profiles` and download it with `people_profiles_export`.
 
 ## Quick Start
 
@@ -256,6 +257,24 @@ scripts/desearch.py people_profiles tiktok --verified --location "united states"
 | `--verified` | Only verified accounts. X and TikTok only. |
 
 **Response:** `{ profiles: Person[] (each with found_by), total, next_cursor }`
+
+
+### `people_profiles_export`: Download the Profiles Library
+
+Everyone `people_profiles` lists for the same platform, query, and filters, in one CSV or JSON Lines file (up to 10,000 people). Free; it does not run a new search.
+
+```bash
+scripts/desearch.py people_profiles_export x --has email --output x-people.csv
+scripts/desearch.py people_profiles_export tiktok --query skincare --format jsonl -o tiktok-people.jsonl
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--format` | `csv` (default) or `jsonl` |
+| `--output`, `-o` | Write the export to this file and print `{ saved, format, bytes }`. Without it the export prints to stdout. |
+| `--query`, `-q`, `--sort` | Same as `people_profiles` |
+| `--has`, `--min-audience`, `--max-audience`, `--min-score`, `--location`, `--verified` | Same filters as `people_profiles` |
 
 ### Errors
 | Status | Meaning |

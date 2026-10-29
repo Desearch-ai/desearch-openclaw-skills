@@ -13,6 +13,7 @@ Usage:
     desearch people_pause | people_resume | people_cancel <task_id>
     desearch people_tasks [--platform P] [--status S1,S2] [--limit N] [--cursor C]
     desearch people_profiles <platform> [--query Q] [--sort S] [filters]
+    desearch people_profiles_export <platform> [--format csv|jsonl] [--output FILE] [filters]
 
 Platforms: x, youtube, linkedin, tiktok
 
@@ -48,6 +49,7 @@ COMMANDS = [
     "people_cancel",
     "people_tasks",
     "people_profiles",
+    "people_profiles_export",
 ]
 
 # Filters each platform accepts inside the search request `filters` object.
@@ -363,14 +365,8 @@ def cmd_people_results(args):
     return {**page, "results": results}
 
 
-def cmd_people_export(args):
-    params = {"format": args.export_format, **library_filters(args)}
-    result = api_request(
-        "GET",
-        task_path(args.task_id, "/export"),
-        params=params,
-        parse_json=False,
-    )
+def save_export(result, args):
+    """Return an export body, or write it to --output; API errors pass through."""
     if not isinstance(result, str):
         return result
 
@@ -391,6 +387,17 @@ def cmd_people_export(args):
             "bytes": len(result.encode("utf-8")),
         }
     return result
+
+
+def cmd_people_export(args):
+    params = {"format": args.export_format, **library_filters(args)}
+    result = api_request(
+        "GET",
+        task_path(args.task_id, "/export"),
+        params=params,
+        parse_json=False,
+    )
+    return save_export(result, args)
 
 
 def cmd_people_control(args):
@@ -422,6 +429,25 @@ def cmd_people_profiles(args):
     return api_request("GET", "/desearch/people/profiles", params=params)
 
 
+def cmd_people_profiles_export(args):
+    if getattr(args, "verified", False) and args.platform not in VERIFIED_PLATFORMS:
+        return {"error": "--verified works only on x and tiktok"}
+    params = {
+        "platform": args.platform,
+        "format": args.export_format,
+        "q": args.query,
+        "sort": args.sort,
+        **library_filters(args),
+    }
+    result = api_request(
+        "GET",
+        "/desearch/people/profiles/export",
+        params=params,
+        parse_json=False,
+    )
+    return save_export(result, args)
+
+
 COMMAND_HANDLERS = {
     "people_search": cmd_people_search,
     "people_task": cmd_people_task,
@@ -433,6 +459,7 @@ COMMAND_HANDLERS = {
     "people_cancel": cmd_people_control,
     "people_tasks": cmd_people_tasks,
     "people_profiles": cmd_people_profiles,
+    "people_profiles_export": cmd_people_profiles_export,
 }
 
 
@@ -462,6 +489,17 @@ def add_library_filters(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Only verified accounts (X and TikTok only)",
     )
+
+
+def add_export_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--format",
+        dest="export_format",
+        choices=["csv", "jsonl"],
+        default="csv",
+        help="Export format (default: csv)",
+    )
+    parser.add_argument("--output", "-o", help="Write the export to this file")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -570,14 +608,7 @@ def build_parser() -> argparse.ArgumentParser:
         "people_export", help="Download a task's people as CSV or JSON Lines"
     )
     export.add_argument("task_id", type=task_id_type)
-    export.add_argument(
-        "--format",
-        dest="export_format",
-        choices=["csv", "jsonl"],
-        default="csv",
-        help="Export format (default: csv)",
-    )
-    export.add_argument("--output", "-o", help="Write the export to this file")
+    add_export_options(export)
     add_library_filters(export)
 
     for name, action in CONTROL_ACTIONS.items():
@@ -611,6 +642,20 @@ def build_parser() -> argparse.ArgumentParser:
     )
     profiles.add_argument("--cursor", help="next_cursor from the previous page")
     add_library_filters(profiles)
+
+    profiles_export = commands.add_parser(
+        "people_profiles_export",
+        help="Download everyone people_profiles lists as CSV or JSON Lines",
+    )
+    profiles_export.add_argument("platform", choices=PLATFORMS)
+    profiles_export.add_argument(
+        "--query", "-q", help="Text in the name, handle, bio, or location"
+    )
+    profiles_export.add_argument(
+        "--sort", choices=PROFILE_SORTS, help="score (API default), recent, or audience"
+    )
+    add_export_options(profiles_export)
+    add_library_filters(profiles_export)
 
     return parser
 
