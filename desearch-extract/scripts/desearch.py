@@ -84,6 +84,7 @@ def cmd_extract(args):
         "format": args.output_format,
         "js": "true" if args.js else "false",
         "wait": args.wait,
+        "full_page": "true" if args.full_page else None,
     }
     return api_request("GET", "/web/extract", params=params)
 
@@ -112,6 +113,11 @@ def main():
         "--wait",
         type=wait_milliseconds,
         help="Extra post-load wait in milliseconds (0-30000)",
+    )
+    parser.add_argument(
+        "--full-page",
+        action="store_true",
+        help="Return all visible text of the page instead of its main content",
     )
 
     args = parser.parse_args()
