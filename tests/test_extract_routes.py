@@ -33,6 +33,7 @@ class ExtractRouteTests(unittest.TestCase):
             output_format="text",
             js=True,
             wait=250,
+            full_page=False,
         )
         with patch.object(
             self.extract_script, "api_request", return_value="content"
@@ -48,6 +49,32 @@ class ExtractRouteTests(unittest.TestCase):
                 "format": "text",
                 "js": "true",
                 "wait": 250,
+                "full_page": None,
+            },
+        )
+
+    def test_full_page_is_sent_only_when_set(self):
+        args = SimpleNamespace(
+            url="https://desearch.ai",
+            output_format="text",
+            js=False,
+            wait=None,
+            full_page=True,
+        )
+        with patch.object(
+            self.extract_script, "api_request", return_value="content"
+        ) as request:
+            self.extract_script.cmd_extract(args)
+
+        request.assert_called_once_with(
+            "GET",
+            "/web/extract",
+            params={
+                "url": "https://desearch.ai",
+                "format": "text",
+                "js": "false",
+                "wait": None,
+                "full_page": "true",
             },
         )
 
