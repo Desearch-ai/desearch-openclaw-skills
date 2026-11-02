@@ -1,12 +1,12 @@
 ---
 name: desearch-x-search
-description: Search X (Twitter) in real time. Find posts by keyword, user, or hashtag. Get a user's timeline, replies, retweeters, or fetch specific posts by ID or URL. Supports advanced filters like date range, language, engagement thresholds, and media type.
+description: Search X (Twitter) in real time. Find posts by keyword, user, or hashtag. Get a user's timeline, replies, retweeters, trending topics by location, or fetch specific posts by ID or URL. Supports advanced filters like date range, language, engagement thresholds, and media type.
 metadata: {"clawdbot":{"emoji":"𝕏","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # X (Twitter) Search By Desearch
 
-Real-time X/Twitter search and monitoring. Search posts, track users, get timelines, replies, and retweeters with powerful filtering.
+Real-time X/Twitter search and monitoring. Search posts, track users, get timelines, replies, retweeters, and trends with powerful filtering.
 
 ## Setup
 
@@ -198,6 +198,34 @@ scripts/desearch.py x_post_replies 1234567890 --query "thanks" --count 5
 | `--query`, `-q` | Filter keyword within replies |
 
 **Response:** `Tweet[]`
+
+
+### `x_trends` — Get Trends by Location
+
+Fetch trending topics on X for a location, by its WOEID (Where On Earth ID). Worldwide is `1`; the United States is `23424977`. Only locations X publishes trends for are accepted; an unsupported WOEID is rejected, not replaced with the Worldwide list.
+
+```bash
+scripts/desearch.py x_trends 1
+scripts/desearch.py x_trends 23424977 --count 50
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--count`, `-n` | Number of trends, 30 to 100 (API default 30) |
+
+**Response:** `{ trends: [{ name, query, rank }], woeid: { name, id } }`
+
+```json
+{
+  "trends": [
+    {"name": "#AI", "query": "#AI", "rank": 1}
+  ],
+  "woeid": {"name": "Worldwide", "id": 1}
+}
+```
+
+`name` is always present; `query` (the search query for the trend) and `rank` can be `null`, and `woeid` is omitted when the location is not reported. Pass a trend's `name` to `x` to read its posts.
 
 ### Errors
 Status 401, Unauthorized (e.g., missing/invalid API key)

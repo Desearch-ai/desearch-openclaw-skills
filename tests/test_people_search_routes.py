@@ -395,6 +395,115 @@ class PeopleSearchRouteTests(unittest.TestCase):
                 request.assert_not_called()
                 self.assertIn("--verified", result["error"])
 
+    def test_profiles_export_sends_search_filters_and_writes_a_file(self):
+        jsonl = '{"handle": "a"}\n{"handle": "b"}\n'
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "library.jsonl"
+            args = SimpleNamespace(
+                platform="x",
+                export_format="jsonl",
+                output=str(output),
+                query="founder",
+                sort="audience",
+                **vars(
+                    library_args(
+                        has=["email"], min_score=70, location="united states", verified=True
+                    )
+                ),
+            )
+            with patch.object(self.script, "api_request", return_value=jsonl) as request:
+                result = self.script.cmd_people_profiles_export(args)
+
+            self.assertEqual(output.read_text(encoding="utf-8"), jsonl)
+
+        self.assertEqual(
+            result,
+            {"saved": str(output), "format": "jsonl", "bytes": len(jsonl.encode("utf-8"))},
+        )
+        request.assert_called_once_with(
+            "GET",
+            "/desearch/people/profiles/export",
+            params={
+                "platform": "x",
+                "format": "jsonl",
+                "q": "founder",
+                "sort": "audience",
+                "has": "email",
+                "min_score": 70,
+                "location": "united states",
+                "verified": "true",
+            },
+            parse_json=False,
+        )
+
+    def test_profiles_export_prints_csv_and_passes_api_errors_through(self):
+        args = SimpleNamespace(
+            platform="youtube",
+            export_format="csv",
+            output=None,
+            query=None,
+            sort=None,
+            **vars(library_args()),
+        )
+        csv_text = "handle,name\nexample,Example Person\n"
+        with patch.object(self.script, "api_request", return_value=csv_text) as request:
+            self.assertEqual(self.script.cmd_people_profiles_export(args), csv_text)
+        self.assertEqual(
+            request.call_args.kwargs["params"],
+            {"platform": "youtube", "format": "csv", "q": None, "sort": None},
+        )
+
+        error = {"detail": "Unknown platform"}
+        with patch.object(self.script, "api_request", return_value=json.dumps(error)):
+            self.assertEqual(self.script.cmd_people_profiles_export(args), error)
+
+    def test_profiles_export_rejects_verified_on_platforms_without_it(self):
+        args = SimpleNamespace(
+            platform="linkedin",
+            export_format="csv",
+            output=None,
+            query=None,
+            sort=None,
+            **vars(library_args(verified=True)),
+        )
+        with patch.object(self.script, "api_request") as request:
+            result = self.script.cmd_people_profiles_export(args)
+
+        request.assert_not_called()
+        self.assertIn("--verified", result["error"])
+
+    def test_cli_parses_a_profiles_export(self):
+        csv_text = "handle\nexample\n"
+        argv = [
+            "people_profiles_export",
+            "tiktok",
+            "--query",
+            "skincare",
+            "--has",
+            "email,instagram",
+            "--min-audience",
+            "1000",
+        ]
+        with patch.object(
+            self.script, "api_request", return_value=csv_text
+        ) as request, contextlib.redirect_stdout(io.StringIO()) as stdout:
+            self.script.main(argv)
+
+        self.assertEqual(stdout.getvalue(), csv_text + "\n")
+        request.assert_called_once_with(
+            "GET",
+            "/desearch/people/profiles/export",
+            params={
+                "platform": "tiktok",
+                "format": "csv",
+                "q": "skincare",
+                "sort": None,
+                "has": "email,instagram",
+                "min_audience": 1000,
+            },
+            parse_json=False,
+        )
+
     def test_api_request_sends_idempotency_header_and_can_skip_json_parsing(self):
         class FakeResponse:
             def __init__(self, body):
@@ -479,6 +588,10 @@ class PeopleSearchRouteTests(unittest.TestCase):
             ["people_profiles", "x", "--has", "email,phone"],
             ["people_tasks", "--status", "running,sleeping"],
             ["people_export", TASK_ID, "--format", "xlsx"],
+            ["people_profiles_export", "facebook"],
+            ["people_profiles_export", "x", "--format", "xlsx"],
+            ["people_profiles_export", "x", "--sort", "followers"],
+            ["people_profiles_export", "x", "--limit", "10"],
         ]
         for argv in bad_argvs:
             with self.subTest(argv=argv):
