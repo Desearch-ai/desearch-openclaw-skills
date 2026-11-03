@@ -14,7 +14,7 @@ Find companies, not pages. Describe the companies you want in plain language, fo
 | You send | a description | 1 to 200 domains or URLs |
 | Companies | found on the web, scored for fit | the ones you send, one per domain |
 | Fit score | `score`, 0 to 100 | none (`score` is `null`) |
-| Price | $0.09 per company | $0.05 per company |
+| Price | $0.045 per company | $0.05 per company |
 
 Both are **billed** and **asynchronous**:
 
@@ -49,7 +49,7 @@ Starting a task reserves companies at the route price (`reserved_cost_usd` on th
 
 | Command | Reserves | Price | Minimum billed per task that delivers any |
 |---------|----------|-------|-------------------------------------------|
-| `company_search` | `count` companies (API default 25, so $2.25) | $0.09 per company ($90 per 1000) | 2 companies ($0.18) |
+| `company_search` | `count` companies (API default 25, so $1.125) | $0.045 per company ($45 per 1000) | 1 company ($0.045) |
 | `company_enrich` | one company per domain sent | $0.05 per company ($50 per 1000) | 1 company ($0.05) |
 
 - A company left out by `--min-score` or `--require` is not delivered and not billed.
@@ -145,7 +145,7 @@ scripts/desearch.py company_search "Independent coffee roasters in Portland that
   "completion_reason": null,
   "coverage_limited": false,
   "warnings": [],
-  "reserved_cost_usd": 2.25,
+  "reserved_cost_usd": 1.125,
   "final_cost_usd": null,
   "created_at": "2026-10-28T09:00:00Z",
   "links": {
