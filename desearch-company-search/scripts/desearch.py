@@ -88,6 +88,8 @@ CONTROL_ACTIONS = {
 
 COUNTRIES_MAX = 20
 DOMAINS_MAX = 200
+# The largest search budget (`max_cost_usd`) a Company Search takes, in USD.
+BUDGET_MAX_USD = 100
 METADATA_MAX_KEYS = 10
 METADATA_FILTERS_MAX = 3
 METADATA_VALUE_MAX = 200
@@ -181,6 +183,22 @@ def search_query(value: str) -> str:
     return text
 
 
+def budget_usd(value: str) -> float:
+    """--max-cost-usd: a search budget in USD, more than 0 and at most BUDGET_MAX_USD.
+
+    Whether it covers `count` at the route price is checked by the API (422).
+    """
+    try:
+        number = float(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("must be a number of USD, e.g. 10") from error
+    if not 0 < number <= BUDGET_MAX_USD:
+        raise argparse.ArgumentTypeError(
+            f"must be more than 0 and at most {BUDGET_MAX_USD}"
+        )
+    return number
+
+
 def comma_list(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
@@ -268,6 +286,11 @@ def build_search_body(args) -> dict:
         body["min_score"] = args.min_score
     if getattr(args, "exclude", None):
         body["exclude"] = args.exclude
+    # Sent only when given: a budget is reserved in full and bills search effort.
+    if getattr(args, "max_cost_usd", None) is not None:
+        body["max_cost_usd"] = args.max_cost_usd
+    if getattr(args, "continue_from", None):
+        body["continue_from"] = args.continue_from
     add_enrichment_options(body, args)
 
     filters = {}
@@ -388,6 +411,12 @@ def cmd_company_search(args):
         body = build_search_body(args)
     except ValueError as error:
         return {"error": str(error)}
+    if "max_cost_usd" in body:
+        print(
+            f"Search budget ${body['max_cost_usd']:g}: the whole budget is reserved, and "
+            "search effort is charged up to it even if few or no companies are found.",
+            file=sys.stderr,
+        )
     return start_task(
         "/desearch/companies/search", body, args.idempotency_key, "Company Search"
     )
@@ -429,6 +458,15 @@ def cmd_company_wait(args):
         # A running task in stage `enriching` has published every company but is
         # still filling some in, so keep waiting until it ends.
         if status in ENDED_STATUSES or status == "paused":
+            if task.get("coverage_limited"):
+                print(
+                    f"Stopped by {task.get('completion_reason')} with "
+                    f"{task.get('result_count')}/{task.get('count')} delivered; there may be "
+                    "more. A new company_search with the same query and filters and "
+                    f"--continue-from {args.task_id} finds only new companies (billed: ask "
+                    "the user first).",
+                    file=sys.stderr,
+                )
             return task
         remaining = deadline - time.monotonic()
         if remaining <= 0:
@@ -599,6 +637,21 @@ def build_parser() -> argparse.ArgumentParser:
         type=choice_list(REQUIREMENTS),
         help="Comma-separated; only deliver companies that have all of: "
         + ", ".join(REQUIREMENTS),
+    )
+    search.add_argument(
+        "--max-cost-usd",
+        type=budget_usd,
+        metavar="USD",
+        help=f"Search budget in USD (more than 0, at most {BUDGET_MAX_USD}; at least count "
+        "x the price). The whole budget is reserved and search effort is charged up to it, "
+        "even if few or no companies are found. Only with the user's agreement.",
+    )
+    search.add_argument(
+        "--continue-from",
+        type=task_id_type,
+        metavar="TASK_ID",
+        help="task_id of an ended Company Search: leave out every company it excluded, "
+        "delivered or held for review",
     )
     add_enrichment_arguments(search)
 
