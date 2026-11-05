@@ -14,7 +14,7 @@ Find companies, not pages. Describe the companies you want in plain language, fo
 | You send | a description | 1 to 200 domains or URLs |
 | Companies | found on the web, scored for fit | the ones you send, one per domain |
 | Fit score | `score`, 0 to 100 | none (`score` is `null`) |
-| Price | $0.09 per company | $0.05 per company |
+| Price | $0.045 per company | $0.05 per company |
 
 Both are **billed** and **asynchronous**:
 
@@ -45,22 +45,30 @@ scripts/desearch.py company_export 5b33f3ee-168b-4780-9c8e-63a626781872 --output
 
 ## Billing
 
-Starting a task reserves companies at the route price (`reserved_cost_usd` on the task). When the task ends you pay only for the companies it delivered, with a per-task minimum when it delivers any. The rest of the reservation is returned automatically. A task that delivers no companies is free.
+Starting a task reserves companies at the route price (`reserved_cost_usd` on the task). When the task ends you pay only for the companies it delivered, with a per-task minimum when it delivers any. The rest of the reservation is returned automatically. A task that delivers no companies is free, unless it is a search with a budget (`--max-cost-usd`, below).
 
 | Command | Reserves | Price | Minimum billed per task that delivers any |
 |---------|----------|-------|-------------------------------------------|
-| `company_search` | `count` companies (API default 25, so $2.25) | $0.09 per company ($90 per 1000) | 2 companies ($0.18) |
+| `company_search` | `count` companies (API default 25, so $1.125) | $0.045 per company ($45 per 1000) | 1 company ($0.045) |
 | `company_enrich` | one company per domain sent | $0.05 per company ($50 per 1000) | 1 company ($0.05) |
 
 - A company left out by `--min-score` or `--require` is not delivered and not billed.
-- Cancelling bills only the companies already delivered (nothing if the task had not started).
+- Cancelling bills only the companies already delivered (nothing if the task had not started). A search with a budget also pays its search effort.
 - `company_enrich` drops duplicate domains before it sends them, so each company is reserved once.
 - Polling, results, exports, pause, resume, cancel, and the task list are free. The task's `reserved_cost_usd` and `final_cost_usd` are the authoritative amounts. Prices: https://desearch.ai/pricing.
 
+**Search budget (`--max-cost-usd`).** Without a budget, a search stops once searching costs more than the companies it found pay for. It then ends with `completion_reason` `cost_limit` and `coverage_limited: true`, and nothing beyond the delivered companies is charged. With `--max-cost-usd <USD>` (more than 0, at most 100, and at least `count` × the price, or the API answers `422`):
+- The whole budget is reserved, not just `count` companies.
+- The search keeps going until it delivers `count` or spends the budget.
+- Its search effort is charged where the delivered companies do not cover it, up to the budget, **even when it finds few companies or none**. `progress.effort_units` shows that effort. The unused part of the budget is returned.
+
 **Agent rules:**
 - Before a new task, check `company_tasks` when the user may already have run this search or enriched these domains. Results stay available for 30 days after a task ends.
-- Tell the user the command, the `count` (or the number of domains), and the maximum reservation (companies × price) before running `company_search` or `company_enrich`, and start it only when they ask for a new task.
+- Tell the user the command, the `count` (or the number of domains), and the maximum reservation (companies × price, or the budget with `--max-cost-usd`) before running `company_search` or `company_enrich`, and start it only when they ask for a new task.
 - Run each billed command once per request. It prints an `Idempotency-Key` to stderr; if the call fails or times out, retry with `--idempotency-key <that key>` so the API returns the first task instead of starting and charging a second one.
+- Never add `--max-cost-usd` on your own. Set a budget only when the user agreed to that amount, after you told them the whole budget is reserved and search effort is charged up to it even when the search finds few companies or none.
+- When a search ends with `coverage_limited: true` (usually `completion_reason` `cost_limit`), tell the user how many companies it delivered out of `count`, and say there may be more. Offer to continue: a new `company_search` with the same query and filters, `--count` set to the number still wanted (at least 5), and `--continue-from <task_id>`. It skips every company the first search excluded, delivered, or held for review, and it is billed as a new task, so start it only when the user says yes. You can also offer a budget for it, under the rule above.
+- To check only companies the user names, put their websites in the query: `Restrict this search to Acme (acme.com.au) and Beta (beta.co.uk). Return only those.` Only those domains are checked against the rest of the request, and the task ends `all_domains_processed`. Names without websites do not restrict the search: it runs as usual and the task has warning `scope_not_applied`. To get contacts for known domains without a fit score, use `company_enrich`.
 - Treat a company's contacts as final only once its `enrichment.status` is `complete` or the task has ended. A task in stage `enriching` is still filling companies in: wait with `company_wait` until it ends, then read with `company_results --all`.
 
 ## How a Task Runs
@@ -97,6 +105,12 @@ scripts/desearch.py company_search "Series A fintech startups in Berlin building
 scripts/desearch.py company_search "Independent coffee roasters in Portland that sell wholesale" --count 50 --min-score 60 --roles ceo,founder,owner
 scripts/desearch.py company_search "B2B SaaS companies selling to dental clinics" --exclude acme.com,https://www.beta.io/ --metadata campaign=q4
 scripts/desearch.py company_search "Robotics startups in Munich" --require leader,leader_email --roles ceo,cto
+scripts/desearch.py company_search "Restrict this search to Acme (acme.com.au) and Beta (beta.co.uk). Return only those." --count 5
+
+# After a search ended with coverage_limited: find only new companies (billed again; ask the user first)
+scripts/desearch.py company_search "Independent coffee roasters in Portland that sell wholesale" --count 30 --min-score 60 --roles ceo,founder,owner --continue-from 5b33f3ee-168b-4780-9c8e-63a626781872
+#    ...with a search budget, only when the user agreed to it
+scripts/desearch.py company_search "Independent coffee roasters in Portland that sell wholesale" --count 30 --min-score 60 --roles ceo,founder,owner --continue-from 5b33f3ee-168b-4780-9c8e-63a626781872 --max-cost-usd 10
 ```
 
 **Options:**
@@ -107,13 +121,15 @@ scripts/desearch.py company_search "Robotics startups in Munich" --require leade
 | `--exclude` | Comma-separated domains or URLs to leave out, for example companies you already contacted (up to 1,000) |
 | `--countries` | Comma-separated ISO codes or country names, e.g. `DE,AT` (up to 20). Scoring treats them as a location criterion. |
 | `--require` | Comma-separated; only deliver companies that have all of: `email`, `phone`, `linkedin` (the company's LinkedIn page), `leader` (one of `--roles`), `leader_email` (a leader with an email) |
+| `--max-cost-usd` | Search budget in USD: more than 0, at most 100, and at least `count` × the price. The whole budget is reserved, and the search keeps going until it delivers `count` or spends the budget. Search effort is charged up to the budget even when it finds few companies or none. Only with the user's agreement (see Billing). |
+| `--continue-from` | `task_id` of an ended Company Search of yours. This search leaves out every company that one excluded, delivered, or held for review, so it only finds new ones. Give the same query and filters, with the `--count` still wanted. `409` while that task is running or paused. |
 | `--roles` | Comma-separated leaders to look for: `ceo`, `founder`, `cto`, `cfo`, `coo`, `cmo`, `president`, `owner`, `managing_director` (API default `ceo,founder,cto,cfo`). A managing director (Geschäftsführer) counts as `ceo` when `ceo` is asked for. |
 | `--no-infer-emails` | Do not guess leaders' emails from the company's address pattern |
 | `--no-verify-emails` | Skip the email checks to finish sooner; emails then have no `verification` |
 | `--metadata` | Your own `key=value` label for the task, repeatable (up to 10), e.g. `--metadata campaign=q4`. Returned on the task and usable with `company_tasks --metadata`. Keys are 1-40 characters of `a-z`, `0-9`, `_`, `.`, `-`; values up to 200 characters. |
 | `--idempotency-key` | Reuse the key from a previous attempt so a retry is not charged again. A new UUID is generated when omitted. |
 
-**Response:** `202` with the new task. Repeating the call with the same `--idempotency-key` returns `200` with the same task and is not charged again.
+**Response:** `202` with the new task. Repeating the call with the same `--idempotency-key` returns `200` with the same task and is not charged again. With `--max-cost-usd`, `reserved_cost_usd` is the budget.
 
 ```json
 {
@@ -129,7 +145,7 @@ scripts/desearch.py company_search "Robotics startups in Munich" --require leade
   "completion_reason": null,
   "coverage_limited": false,
   "warnings": [],
-  "reserved_cost_usd": 2.25,
+  "reserved_cost_usd": 1.125,
   "final_cost_usd": null,
   "created_at": "2026-10-28T09:00:00Z",
   "links": {
@@ -173,15 +189,15 @@ scripts/desearch.py company_task 5b33f3ee-168b-4780-9c8e-63a626781872
 **Response:** the task.
 - `status` moves through `queued`, `running`, and sometimes `pausing` or `paused`, then ends as `completed`, `partial`, `failed`, `cancelled`, or `expired`.
 - `stage` is `planning`, `searching`, `processing`, `enriching`, or `finalizing` while it runs. `result_count` counts the companies delivered so far.
-- `progress`: `candidates_found`, `candidates_processed`, `qualified`, `filtered` (companies left out, by reason: `unreachable`, `not_a_company`, `below_min_score`, `no_<requirement>`), `enrichment` (`published`, `complete`, `pending`, `failed`), and `email_checks` (`checked`, `valid`, `invalid`, `risky`, `unknown`).
-- Once it ends, `completion_reason` says why: `count_reached`, `all_domains_processed` (Company Enrich), `rounds_exhausted`, `no_candidates`, `zero_qualified`, `candidate_budget`, `cost_limit`, `time_limit`, `cancelled`, or `failed`. `coverage_limited` is true when a budget (`candidate_budget`, `cost_limit`, `time_limit`) stopped it before `count`; `status` alone stays `completed` then. `final_cost_usd` and `refunded_usd` are set.
-- `warnings`: what made part of the task less reliable without failing it, e.g. `enrichment_time_limit` (some companies were not fully enriched before the time limit) or `linkedin_verification_unavailable`.
-- `request`: the normalized request. `metadata`: your labels (`{}` when none).
+- `progress`: `candidates_found`, `candidates_processed`, `qualified`, `filtered` (companies left out, by reason: `unreachable`, `not_a_company`, `below_min_score`, `no_<requirement>`), `enrichment` (`published`, `complete`, `pending`, `failed`), `email_checks` (`checked`, `valid`, `invalid`, `risky`, `unknown`), `review` (companies held for review: not delivered, not billed), and `effort_units` (searches with `--max-cost-usd` only: the search effort charged where the delivered companies do not cover it).
+- Once it ends, `completion_reason` says why: `count_reached`, `all_domains_processed` (Company Enrich, or a search restricted to the domains its query names), `rounds_exhausted`, `no_candidates`, `zero_qualified`, `candidate_budget`, `cost_limit`, `time_limit`, `cancelled`, or `failed`. `coverage_limited` is true when a budget (`candidate_budget`, `cost_limit`, `time_limit`) stopped it before `count`; `status` alone stays `completed` then. A `cost_limit` search can be continued with `--continue-from` (see the agent rules). `final_cost_usd` and `refunded_usd` are set.
+- `warnings`: what made part of the task less reliable without failing it, e.g. `enrichment_time_limit` (some companies were not fully enriched before the time limit), `linkedin_verification_unavailable`, or `scope_not_applied` (the query names the only companies wanted without their websites, so the search was not restricted).
+- `request`: the normalized request, with `max_cost_usd` and `continue_from` when they were sent. A continued search's `exclude` also lists the earlier search's companies. `interpreted.interpretation.only_domains` lists the domains a restricted query names. `metadata`: your labels (`{}` when none).
 
 
 ### `company_wait`: Poll Until Done
 
-Polls the task until it ends or is paused, printing progress to stderr, then prints the task. A task in stage `enriching` has published every company but is still filling some in, so `company_wait` keeps waiting until the task ends.
+Polls the task until it ends or is paused, printing progress to stderr, then prints the task. A task in stage `enriching` has published every company but is still filling some in, so `company_wait` keeps waiting until the task ends. When the task ends with `coverage_limited`, it also prints to stderr how to continue it with `--continue-from`.
 
 ```bash
 scripts/desearch.py company_wait 5b33f3ee-168b-4780-9c8e-63a626781872
@@ -342,13 +358,13 @@ scripts/desearch.py company_tasks --metadata campaign=q4 --metadata workspace_id
 | 400 | Unknown type, status, or cursor, or an invalid metadata filter |
 | 401 | Missing or invalid API key |
 | 402 | Balance cannot cover the reservation |
-| 404 | Task not found. A People Search task ID is a 404 here (use `desearch-people-search` for it), and a company task ID is a 404 there. |
-| 409 | Pause, resume, or cancel does not apply to the task's current status |
+| 404 | Task not found. A People Search task ID is a 404 here (use `desearch-people-search` for it), and a company task ID is a 404 there. `--continue-from` with a task that is not your Company Search (a Company Enrich or People Search task, or another account's) is also a 404. |
+| 409 | Pause, resume, or cancel does not apply to the task's current status, or the `--continue-from` task is still running or paused (wait for it to end, or cancel it) |
 | 410 | Results expired, 30 days after the task ended |
-| 422 | Invalid request body or parameters, for example a domain that is not a public host name |
+| 422 | Invalid request body or parameters, for example a domain that is not a public host name, or a `--max-cost-usd` below what `count` reserves (`count` × the price); the reservation is returned |
 | 429 | Too many of your People Search and Company Search tasks are already queued, running, or paused |
 
-Error bodies are JSON with a `detail` field. A `409` from pause, resume, or cancel also includes the current `task`. The CLI prints the body as returned. Input it can check locally (query length, `count` and `--min-score` ranges, roles, requirements, more than 20 countries, no domains or more than 200, metadata labels, task ID format, statuses, export format) is rejected before any request is sent.
+Error bodies are JSON with a `detail` field. A `409` from pause, resume, or cancel also includes the current `task`. The CLI prints the body as returned. Input it can check locally (query length, `count`, `--min-score` and `--max-cost-usd` ranges, roles, requirements, more than 20 countries, no domains or more than 200, metadata labels, task ID format including `--continue-from`, statuses, export format) is rejected before any request is sent.
 
 ## Resources
 - [Company Search guide](https://www.desearch.ai/docs/guide/apis/company-search)

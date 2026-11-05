@@ -31,6 +31,8 @@ def search_args(**overrides):
         "exclude": None,
         "countries": None,
         "require": None,
+        "max_cost_usd": None,
+        "continue_from": None,
         "roles": None,
         "no_infer_emails": False,
         "no_verify_emails": False,
@@ -157,6 +159,39 @@ class CompanySearchRouteTests(unittest.TestCase):
         self.assertEqual(
             request.call_args.kwargs["body"], {"query": "Robotics startups in Munich"}
         )
+
+    def test_search_sends_a_budget_and_the_task_to_continue_from(self):
+        earlier = "0c9f3a52-7d1e-4f0a-9a3b-2b8e6f1d4c77"
+        args = search_args(
+            query="Civil engineering contractors in Western Australia",
+            count=50,
+            countries=["AU"],
+            max_cost_usd=10.0,
+            continue_from=earlier,
+        )
+        with patch.object(self.script, "api_request", return_value={}) as request:
+            _, stderr = self.run_quietly(self.script.cmd_company_search, args)
+
+        self.assertEqual(
+            request.call_args.kwargs["body"],
+            {
+                "query": "Civil engineering contractors in Western Australia",
+                "count": 50,
+                "max_cost_usd": 10.0,
+                "continue_from": earlier,
+                "filters": {"countries": ["AU"]},
+            },
+        )
+        self.assertIn("Search budget $10: the whole budget is reserved", stderr)
+        self.assertIn("even if few or no companies are found", stderr)
+
+    def test_search_without_a_budget_does_not_warn_about_effort(self):
+        args = search_args(continue_from="0c9f3a52-7d1e-4f0a-9a3b-2b8e6f1d4c77")
+        with patch.object(self.script, "api_request", return_value={}) as request:
+            _, stderr = self.run_quietly(self.script.cmd_company_search, args)
+
+        self.assertNotIn("max_cost_usd", request.call_args.kwargs["body"])
+        self.assertNotIn("Search budget", stderr)
 
     def test_search_generates_an_idempotency_key_when_none_is_given(self):
         args = search_args()
@@ -323,6 +358,31 @@ class CompanySearchRouteTests(unittest.TestCase):
         for call in request.call_args_list:
             self.assertEqual(call.args, ("GET", f"/desearch/companies/tasks/{TASK_ID}"))
         self.assertIn("stage=enriching delivered=25/25 fully_enriched=18", stderr)
+
+    def test_wait_suggests_continue_from_when_coverage_is_limited(self):
+        args = SimpleNamespace(task_id=TASK_ID, interval=5, timeout=600)
+        limited = {
+            "status": "completed",
+            "result_count": 12,
+            "count": 50,
+            "completion_reason": "cost_limit",
+            "coverage_limited": True,
+        }
+        with patch.object(
+            self.script, "api_request", return_value=limited
+        ), patch.object(self.script.time, "sleep"):
+            result, stderr = self.run_quietly(self.script.cmd_company_wait, args)
+
+        self.assertEqual(result, limited)
+        self.assertIn("Stopped by cost_limit with 12/50 delivered", stderr)
+        self.assertIn(f"--continue-from {TASK_ID}", stderr)
+
+        done = {"status": "completed", "completion_reason": "count_reached"}
+        with patch.object(self.script, "api_request", return_value=done), patch.object(
+            self.script.time, "sleep"
+        ):
+            _, stderr = self.run_quietly(self.script.cmd_company_wait, args)
+        self.assertNotIn("--continue-from", stderr)
 
     def test_wait_stops_when_the_task_is_paused(self):
         args = SimpleNamespace(task_id=TASK_ID, interval=5, timeout=600)
@@ -692,6 +752,34 @@ class CompanySearchRouteTests(unittest.TestCase):
             headers={"Idempotency-Key": "cli-key"},
         )
 
+    def test_cli_parses_a_budget_and_continue_from(self):
+        argv = [
+            "company_search",
+            "Restrict this search to Acme (acme.com.au) and Beta (beta.co.uk). Return only those.",
+            "--count",
+            "5",
+            "--max-cost-usd",
+            "2.5",
+            "--continue-from",
+            TASK_ID.upper(),
+            "--idempotency-key",
+            "cli-budget",
+        ]
+        with patch.object(self.script, "api_request", return_value={}) as request:
+            self.run_cli(argv)
+
+        request.assert_called_once_with(
+            "POST",
+            "/desearch/companies/search",
+            body={
+                "query": "Restrict this search to Acme (acme.com.au) and Beta (beta.co.uk). Return only those.",
+                "count": 5,
+                "max_cost_usd": 2.5,
+                "continue_from": TASK_ID,
+            },
+            headers={"Idempotency-Key": "cli-budget"},
+        )
+
     def test_cli_parses_an_enrich_and_prints_json(self):
         task = {"task_id": TASK_ID, "status": "queued", "count": 2}
         argv = [
@@ -772,6 +860,11 @@ class CompanySearchRouteTests(unittest.TestCase):
             ["company_search", "Robotics startups", "--metadata", "campaign"],
             ["company_search", "Robotics startups", "--metadata", "Campaign=q4"],
             ["company_search", "Robotics startups", "--metadata", "note=" + "x" * 201],
+            ["company_search", "Robotics startups", "--max-cost-usd", "0"],
+            ["company_search", "Robotics startups", "--max-cost-usd", "100.01"],
+            ["company_search", "Robotics startups", "--max-cost-usd", "ten"],
+            ["company_search", "Robotics startups", "--max-cost-usd", "nan"],
+            ["company_search", "Robotics startups", "--continue-from", "last-search"],
             ["company_enrich", "acme.com", "--roles", ","],
             ["company_task", "not-a-task-id"],
             ["company_wait", TASK_ID, "--timeout", "5"],
