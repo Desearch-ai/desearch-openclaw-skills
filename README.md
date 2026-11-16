@@ -1,12 +1,12 @@
 # Desearch OpenClaw Skills
 
-A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](https://desearch.ai) real-time search, social data, and webpage extraction capabilities to OpenClaw.
+A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](https://desearch.ai) search, social data, and webpage extraction capabilities to OpenClaw.
 
 ## Skills
 
 | Skill | Emoji | Description |
 |-------|-------|-------------|
-| [desearch-ai-search](desearch-ai-search/) | 🔎 | AI-powered search aggregating results from web, X/Twitter, Reddit, Hacker News, YouTube, ArXiv, and Wikipedia — with summarized answers or curated links |
+| [desearch-ai-search](desearch-ai-search/) | 🔎 | AI search that summarizes results from web, X, Reddit, Hacker News, YouTube, arXiv and Wikipedia, with links to the sources. |
 | [desearch-extract](desearch-extract/) | 📄 | Extract clean text or raw HTML from any webpage through the canonical Extract API |
 | [desearch-facebook-search](desearch-facebook-search/) | 📘 | Meta Ad Library search, plus public Facebook pages, their posts, single posts, and comments |
 | [desearch-instagram-search](desearch-instagram-search/) | 📸 | Public Instagram profile search, profiles, their posts, single posts, comments, and hashtag posts |
@@ -17,17 +17,28 @@ A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](htt
 | [desearch-search-api](desearch-search-api/) | 🎯 | Web search returning ranked pages, each with the passage that best matches the query and optionally the full page text |
 | [desearch-threads-search](desearch-threads-search/) | 🧵 | Public Threads post and account search, profiles, their latest posts, and single posts with replies |
 | [desearch-tiktok-search](desearch-tiktok-search/) | 🎵 | Public TikTok post search, profiles, their posts, single posts, comments, hashtag posts, and trending posts |
-| [desearch-web-search](desearch-web-search/) | 🌐 | Real-time web search returning SERP-style results with titles, URLs, and snippets |
-| [desearch-x-search](desearch-x-search/) | 𝕏 | Real-time X (Twitter) search — posts, timelines, replies, retweeters, trends with advanced filters |
+| [desearch-web-search](desearch-web-search/) | 🌐 | Search the web and get SERP-style results with titles, URLs and snippets |
+| [desearch-x-search](desearch-x-search/) | 𝕏 | Search X (Twitter) posts, timelines, replies, retweeters and trends with advanced filters |
 | [desearch-youtube-search](desearch-youtube-search/) | 📺 | Public YouTube search, videos, transcripts, comments, channels, and channel uploads |
 
 ## Requirements
 
+- Python 3.10 or newer. The scripts use the `python3` found on `PATH`.
 - A Desearch API key from [console.desearch.ai](https://console.desearch.ai)
 - Set the environment variable:
   ```bash
   export DESEARCH_API_KEY='your-key-here'
   ```
+
+Before running the examples, select a supported interpreter. With Python 3.12 installed, run these commands from the repository root:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python3 --version
+```
+
+Confirm that the version printed is Python 3.12. Keep this environment active while running the examples. If `python3.12` is unavailable, install Python 3.12 first. For OpenClaw, ensure its process also finds Python 3.10 or newer as `python3` on `PATH`.
 
 ## Quick Start
 

@@ -12,6 +12,8 @@ Extract content from any webpage URL. Returns clean text or raw HTML.
 
 ## Quick Start
 
+Requires Python 3.10 or newer as `python3` on `PATH`. See the [Python setup instructions](../README.md#requirements) before running the commands below.
+
 1. Get an API key from https://console.desearch.ai
 2. Set environment variable: `export DESEARCH_API_KEY='your-key-here'`
 
@@ -63,7 +65,7 @@ Artificial intelligence (AI) is the capability of computational systems to perfo
 ```
 
 ### Notes
-- Response is plain text or raw HTML — not JSON.
+- Response is plain text or raw HTML, not JSON.
 - Default format is `text`. Use `--crawl-format html` only when you need to inspect page structure.
 - Prefer `text` format to avoid bloating the agent context with markup.
 

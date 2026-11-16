@@ -1,15 +1,16 @@
 ---
 name: desearch-ai-search
-description: AI-powered search that aggregates and summarizes results from multiple sources including web, X/Twitter, Reddit, Hacker News, YouTube, ArXiv, and Wikipedia. Use this when you need a synthesized answer or curated links from across the internet and social platforms.
+description: AI search that summarizes results from web, X, Reddit, Hacker News, YouTube, arXiv and Wikipedia, with links to the sources. Use this when you need a synthesized answer or curated links from across the internet and social platforms.
 metadata: {"clawdbot":{"emoji":"🔎","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # AI Search By Desearch
 
-AI-powered multi-source search that aggregates results from web, Reddit, Hacker News, YouTube, ArXiv, Wikipedia, and X/Twitter — returning either 
-summarized answers or curated links.
+AI search that summarizes results from web, X, Reddit, Hacker News, YouTube, arXiv and Wikipedia, with links to the sources.
 
 ## Quick Start
+
+Requires Python 3.10 or newer as `python3` on `PATH`. See the [Python setup instructions](../README.md#requirements) before running the commands below.
 
 1. Get an API key from https://console.desearch.ai
 2. Set environment variable: `export DESEARCH_API_KEY='your-key-here'`
