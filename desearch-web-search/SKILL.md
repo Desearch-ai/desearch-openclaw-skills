@@ -1,12 +1,12 @@
 ---
 name: desearch-web-search
-description: Search the web and get real-time SERP-style results with titles, URLs, and snippets. Use this for general web queries when you need current links and information from across the internet.
+description: Search the web and get SERP-style results with titles, URLs and snippets. Use this for general web queries when you need links to sources.
 metadata: {"clawdbot":{"emoji":"🌐","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # Web Search By Desearch
 
-Real-time web search returning structured SERP-style results with titles, links, and snippets.
+Search the web and get SERP-style results with titles, URLs and snippets. Use this for general web queries when you need links to sources.
 
 ## Quick Start
 
