@@ -12,6 +12,8 @@ Extract content from any webpage URL. Returns clean text or raw HTML.
 
 ## Quick Start
 
+Requires Python 3.10 or newer as `python3` on `PATH`. See the [Python setup instructions](../README.md#requirements) before running the commands below.
+
 1. Get an API key from https://console.desearch.ai
 2. Set environment variable: `export DESEARCH_API_KEY='your-key-here'`
 

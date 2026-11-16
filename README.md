@@ -23,11 +23,22 @@ A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](htt
 
 ## Requirements
 
+- Python 3.10 or newer. The scripts use the `python3` found on `PATH`.
 - A Desearch API key from [console.desearch.ai](https://console.desearch.ai)
 - Set the environment variable:
   ```bash
   export DESEARCH_API_KEY='your-key-here'
   ```
+
+Before running the examples, select a supported interpreter. With Python 3.12 installed, run these commands from the repository root:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python3 --version
+```
+
+Confirm that the version printed is Python 3.12. Keep this environment active while running the examples. If `python3.12` is unavailable, install Python 3.12 first. For OpenClaw, ensure its process also finds Python 3.10 or newer as `python3` on `PATH`.
 
 ## Quick Start
 
