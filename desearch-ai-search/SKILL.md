@@ -1,13 +1,12 @@
 ---
 name: desearch-ai-search
-description: AI-powered search that aggregates and summarizes results from multiple sources including web, X/Twitter, Reddit, Hacker News, YouTube, ArXiv, and Wikipedia. Use this when you need a synthesized answer or curated links from across the internet and social platforms.
+description: AI Search over X/Twitter posts and the web (from the Desearch index), also Reddit, Hacker News, YouTube, ArXiv, and Wikipedia, with an optional AI summary. Use this when you need what people say on X, or an answer that mixes X and the web. For web-only answers, use desearch-search-api with --summary.
 metadata: {"clawdbot":{"emoji":"🔎","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # AI Search By Desearch
 
-AI-powered multi-source search that aggregates results from web, Reddit, Hacker News, YouTube, ArXiv, Wikipedia, and X/Twitter — returning either 
-summarized answers or curated links.
+AI Search covers X/Twitter posts and the web (from the Desearch index), plus Reddit, Hacker News, YouTube, ArXiv, and Wikipedia, returning either a summarized answer or curated links. Web results are capped at 20 per request. For web-only search, use `desearch-search-api` (`--summary` for an answer).
 
 ## Quick Start
 
@@ -17,10 +16,10 @@ summarized answers or curated links.
 ## Usage
 
 ```bash
-# AI contextual search (summarized results from multiple sources)
-desearch.py ai_search "What is Bittensor?" --tools web,reddit,youtube
+# AI contextual search (summarized results from X and the web)
+desearch.py ai_search "What are people saying about Bittensor?" --tools twitter,web
 
-# AI web link search (curated links from specific sources)
+# AI web link search (deprecated; use desearch-search-api)
 desearch.py ai_web "machine learning papers" --tools arxiv,web,wikipedia
 
 # AI X/Twitter link search (curated post links)
@@ -32,7 +31,7 @@ desearch.py ai_x "crypto market trends" --count 20
 | Command | Description |
 |---------|-------------|
 | `ai_search` | AI-summarized search across multiple sources. Returns aggregated results with context. |
-| `ai_web` | AI-curated link search. Returns the most relevant links from chosen sources. |
+| `ai_web` | Deprecated (`/desearch/ai/search/links/web`); use `desearch-search-api`. AI-curated link search from chosen sources. |
 | `ai_x` | AI-powered X/Twitter search. Returns the most relevant post links for a topic. |
 
 ## Options

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Desearch Search API CLI - Ranked web pages, each with the passage that best matches the query.
+"""Desearch Search API CLI - Web search on the Desearch index, with an optional summary citing the results.
 
 Usage:
     desearch search "<query>" [options]
@@ -89,6 +89,10 @@ def iso_date(value: str) -> str:
         raise argparse.ArgumentTypeError("date must be YYYY-MM-DD") from error
 
 
+def domain_list(value: str) -> list[str]:
+    return [domain.strip() for domain in value.split(",") if domain.strip()]
+
+
 def build_search_body(args) -> dict:
     """Request body for POST /search. Options left unset use the API defaults."""
     body = {"query": args.query}
@@ -104,7 +108,19 @@ def build_search_body(args) -> dict:
         body["highlights"] = False
     if args.page_text:
         body["page_text"] = True
+    if args.include_domains:
+        body["include_domains"] = args.include_domains
+    if args.exclude_domains:
+        body["exclude_domains"] = args.exclude_domains
+    if args.summary:
+        body["summary"] = True
     return body
+
+
+def summary_first(results):
+    if not isinstance(results, dict) or "summary" not in results:
+        return results
+    return {"summary": results["summary"], **{k: v for k, v in results.items() if k != "summary"}}
 
 
 def cmd_search(args):
@@ -151,13 +167,28 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Include the full text of each page",
     )
+    parser.add_argument(
+        "--include-domains",
+        type=domain_list,
+        help="Only pages on these domains or their subdomains (comma-separated, at most 100)",
+    )
+    parser.add_argument(
+        "--exclude-domains",
+        type=domain_list,
+        help="Never pages on these domains or their subdomains (comma-separated, at most 1,200)",
+    )
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Also return a short answer written from the results, with numbered citations",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None):
     parser = build_parser()
     args = parser.parse_args(argv)
-    results = cmd_search(args)
+    results = summary_first(cmd_search(args))
 
     if isinstance(results, str):
         print(results)
