@@ -86,6 +86,47 @@ class SearchApiRouteTests(unittest.TestCase):
             },
         )
 
+    def test_search_sends_summary_and_domain_options(self):
+        request, _ = self.run_cli(
+            [
+                "search",
+                "bittensor",
+                "--include-domains",
+                "bbc.com, reuters.com",
+                "--exclude-domains",
+                "pinterest.com",
+                "--summary",
+            ]
+        )
+        request.assert_called_once_with(
+            "POST",
+            "/search",
+            body={
+                "query": "bittensor",
+                "include_domains": ["bbc.com", "reuters.com"],
+                "exclude_domains": ["pinterest.com"],
+                "summary": True,
+            },
+        )
+
+    def test_search_prints_the_summary_first(self):
+        response = {
+            "results": [{"url": "https://a.example/", "title": "A"}],
+            "meta": {"latency_ms": 900, "notices": []},
+            "summary": {
+                "text": "A is a page [1].",
+                "citations": [{"index": 1, "url": "https://a.example/", "title": "A"}],
+            },
+        }
+        with (
+            patch.object(self.script, "api_request", return_value=response),
+            contextlib.redirect_stdout(io.StringIO()) as stdout,
+        ):
+            self.script.main(["search", "a", "--summary"])
+        printed = json.loads(stdout.getvalue())
+        self.assertEqual(list(printed)[:2], ["summary", "results"])
+        self.assertEqual(printed, response)
+
     def test_search_prints_the_response(self):
         response = {
             "results": [

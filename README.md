@@ -6,7 +6,7 @@ A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](htt
 
 | Skill | Emoji | Description |
 |-------|-------|-------------|
-| [desearch-ai-search](desearch-ai-search/) | 🔎 | AI-powered search aggregating results from web, X/Twitter, Reddit, Hacker News, YouTube, ArXiv, and Wikipedia — with summarized answers or curated links |
+| [desearch-ai-search](desearch-ai-search/) | 🔎 | AI Search over X/Twitter posts and the web, plus Reddit, Hacker News, YouTube, ArXiv, and Wikipedia, with an optional AI summary or curated links |
 | [desearch-extract](desearch-extract/) | 📄 | Extract clean text or raw HTML from any webpage through the canonical Extract API |
 | [desearch-facebook-search](desearch-facebook-search/) | 📘 | Meta Ad Library search, plus public Facebook pages, their posts, single posts, and comments |
 | [desearch-instagram-search](desearch-instagram-search/) | 📸 | Public Instagram profile search, profiles, their posts, single posts, comments, and hashtag posts |
@@ -14,7 +14,7 @@ A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](htt
 | [desearch-people-search](desearch-people-search/) | 👥 | Find people and creators on X, YouTube, LinkedIn, or TikTok who match a plain-language description. Billed per person found; runs in the background for 1 to 5 minutes |
 | [desearch-company-search](desearch-company-search/) | 🏢 | Find companies from a plain-language description, or enrich domains you already have, with public emails, phones, social profiles, and leaders (CEO, founders, CTO, CFO) with checked emails. Billed per company delivered; runs in the background |
 | [desearch-crawl](desearch-crawl/) | 🕷️ | Deprecated compatibility skill for existing crawl integrations |
-| [desearch-search-api](desearch-search-api/) | 🎯 | Web search returning ranked pages, each with the passage that best matches the query and optionally the full page text |
+| [desearch-search-api](desearch-search-api/) | 🎯 | Web search on the Desearch index returning ranked pages, each with the passage that best matches the query, and optionally a short answer with numbered citations or the full page text |
 | [desearch-threads-search](desearch-threads-search/) | 🧵 | Public Threads post and account search, profiles, their latest posts, and single posts with replies |
 | [desearch-tiktok-search](desearch-tiktok-search/) | 🎵 | Public TikTok post search, profiles, their posts, single posts, comments, hashtag posts, and trending posts |
 | [desearch-web-search](desearch-web-search/) | 🌐 | Real-time web search returning SERP-style results with titles, URLs, and snippets |
@@ -34,8 +34,11 @@ A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](htt
 Each skill uses a `scripts/desearch.py` entry point. Examples:
 
 ```bash
-# AI-summarized multi-source search
-desearch-ai-search/scripts/desearch.py ai_search "What is Bittensor?" --tools web,reddit,youtube
+# Web search with an answer and numbered citations
+desearch-search-api/scripts/desearch.py search "What is Bittensor?" --summary
+
+# AI Search over X and the web
+desearch-ai-search/scripts/desearch.py ai_search "What are people saying about Bittensor?" --tools twitter,web
 
 # Extract a webpage
 desearch-extract/scripts/desearch.py extract "https://en.wikipedia.org/wiki/Artificial_intelligence"

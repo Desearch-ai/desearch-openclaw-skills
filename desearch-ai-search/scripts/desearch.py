@@ -4,7 +4,7 @@ Desearch AI Search CLI - AI-powered multi-source search with summarized results.
 
 Usage:
     desearch ai_search "<query>" [options]
-    desearch ai_web "<query>" [options]
+    desearch ai_web "<query>" [options]   (deprecated; use desearch-search-api)
     desearch ai_x "<query>" [options]
 
 Environment:
@@ -102,6 +102,10 @@ def cmd_ai_search(args):
 
 
 def cmd_ai_web(args):
+    print(
+        "Note: ai_web (/desearch/ai/search/links/web) is deprecated; use desearch-search-api.",
+        file=sys.stderr,
+    )
     tools = args.tools.split(",") if args.tools else ["web"]
     body = {
         "prompt": args.query,
