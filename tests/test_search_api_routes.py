@@ -112,7 +112,7 @@ class SearchApiRouteTests(unittest.TestCase):
     def test_search_prints_the_summary_first(self):
         response = {
             "results": [{"url": "https://a.example/", "title": "A"}],
-            "meta": {"latency_ms": 900, "notices": []},
+            "meta": {"notices": []},
             "summary": {
                 "text": "A is a page [1].",
                 "citations": [{"index": 1, "url": "https://a.example/", "title": "A"}],

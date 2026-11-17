@@ -66,7 +66,7 @@ The query can be up to 2000 characters.
       "highlights": ["Bittensor is an open-source platform ..."]
     }
   ],
-  "meta": {"latency_ms": 1800, "notices": []},
+  "meta": {"notices": []},
   "cost_usd": ...,
   "usage_count": ...,
   "service": "...",
@@ -83,7 +83,6 @@ The query can be up to 2000 characters.
 | `results[].published_date` | string | Publication date (YYYY-MM-DD). Omitted when unknown. |
 | `results[].highlights` | string[] | Passage that best matches the query. Left out with `--no-highlights`. |
 | `results[].page_text` | string | Full page text. Only with `--page-text`. |
-| `meta.latency_ms` | int | Time the search took on the server |
 | `meta.notices` | string[] | Notes on this answer. `summary` is `null` and this has `Summary unavailable.` when the summary could not be written; the results are still returned. |
 | `cost_usd` | number | Cost charged for this request in USD |
 | `usage_count` | int | Billable usage units for this request |
