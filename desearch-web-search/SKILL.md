@@ -39,7 +39,7 @@ scripts/desearch.py web "quantum computing" --start 10
 
 | Option | Description |
 |--------|-------------|
-| `--start` | Pagination offset (default: 0). Use to get the next page of results. |
+| `--start` | Number of results to skip (default: 0; documented valid range: 0–100). Use this offset to paginate. |
 
 ## Response
 
@@ -61,7 +61,7 @@ scripts/desearch.py web "best sights in Georgia"
 ```
 
 ### Notes
-- Returns up to 10 results per page. Use `--start` to paginate.
+- Returns up to 20 results per request; the actual count may vary. Use `--start` to skip results and paginate.
 
 ### Errors
 Status 401, Unauthorized (e.g., missing/invalid API key)
