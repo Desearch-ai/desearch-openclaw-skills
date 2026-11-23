@@ -29,10 +29,10 @@ Confirm that the version printed is Python 3.12. Keep this environment active wh
 
 ```bash
 # Basic web search
-scripts/desearch.py web "quantum computing"
+python3 scripts/desearch.py web "quantum computing"
 
 # Paginated results
-scripts/desearch.py web "quantum computing" --start 10
+python3 scripts/desearch.py web "quantum computing" --start 10
 ```
 
 ## Options
@@ -45,7 +45,7 @@ scripts/desearch.py web "quantum computing" --start 10
 
 ### Example
 ```bash
-scripts/desearch.py web "best sights in Georgia"
+python3 scripts/desearch.py web "best sights in Georgia"
 ```
 
 ```json

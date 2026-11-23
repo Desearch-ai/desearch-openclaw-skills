@@ -29,13 +29,13 @@ Run the following from this skill's directory:
 
 ```bash
 # AI Search with web and X sources
-scripts/desearch.py ai_search "What is Bittensor?" --tools web,twitter
+python3 scripts/desearch.py ai_search "What is Bittensor?" --tools web,twitter
 
 # Web results through the Search API (compatibility command)
-scripts/desearch.py ai_web "machine learning papers" --tools web
+python3 scripts/desearch.py ai_web "machine learning papers" --tools web
 
 # AI X/Twitter link search
-scripts/desearch.py ai_x "crypto market trends" --count 20
+python3 scripts/desearch.py ai_x "crypto market trends" --count 20
 ```
 
 ## Commands

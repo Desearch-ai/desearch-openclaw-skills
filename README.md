@@ -46,20 +46,20 @@ Each skill uses a `scripts/desearch.py` entry point. Examples:
 
 ```bash
 # AI-summarized multi-source search
-desearch-ai-search/scripts/desearch.py ai_search "What is Bittensor?" --tools web,twitter
+python3 desearch-ai-search/scripts/desearch.py ai_search "What is Bittensor?" --tools web,twitter
 
 # Extract a webpage
 desearch-extract/scripts/desearch.py extract "https://en.wikipedia.org/wiki/Artificial_intelligence"
 
 # Web search
-desearch-web-search/scripts/desearch.py web "latest AI news"
+python3 desearch-web-search/scripts/desearch.py web "latest AI news"
 
 # Search API: ranked pages with the best-matching passage
 desearch-search-api/scripts/desearch.py search "What is Bittensor?" --count 10
 
 # X/Twitter search and trends
-desearch-x-search/scripts/desearch.py x "AI breakthroughs" --sort Latest --count 20
-desearch-x-search/scripts/desearch.py x_trends 1
+python3 desearch-x-search/scripts/desearch.py x "AI breakthroughs" --sort Latest --count 20
+python3 desearch-x-search/scripts/desearch.py x_trends 1
 
 # TikTok, Instagram, and Facebook
 desearch-tiktok-search/scripts/desearch.py tiktok_hashtag ai --count 20

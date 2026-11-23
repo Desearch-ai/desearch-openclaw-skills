@@ -78,9 +78,9 @@ All tweet-returning endpoints share these shapes. Fields marked `*` are always p
 Search X posts by keyword, hashtag, or user with engagement filters.
 
 ```bash
-scripts/desearch.py x "Bittensor TAO" --sort Latest --count 10
-scripts/desearch.py x "AI news" --user elonmusk --start-date 2025-01-01
-scripts/desearch.py x "crypto" --min-likes 100 --verified --lang en
+python3 scripts/desearch.py x "Bittensor TAO" --sort Latest --count 10
+python3 scripts/desearch.py x "AI news" --user elonmusk --start-date 2025-01-01
+python3 scripts/desearch.py x "crypto" --min-likes 100 --verified --lang en
 ```
 
 **Options:**
@@ -109,7 +109,7 @@ scripts/desearch.py x "crypto" --min-likes 100 --verified --lang en
 Fetch a single post by its numeric ID.
 
 ```bash
-scripts/desearch.py x_post 1892527552029499853
+python3 scripts/desearch.py x_post 1892527552029499853
 ```
 
 **Response:** `Tweet`
@@ -120,7 +120,7 @@ scripts/desearch.py x_post 1892527552029499853
 Retrieve one or more posts by their X URLs.
 
 ```bash
-scripts/desearch.py x_urls "https://x.com/user/status/123" "https://x.com/user/status/456"
+python3 scripts/desearch.py x_urls "https://x.com/user/status/123" "https://x.com/user/status/456"
 ```
 
 **Response:** `Tweet[]`
@@ -131,7 +131,7 @@ scripts/desearch.py x_urls "https://x.com/user/status/123" "https://x.com/user/s
 Search within a specific user's posts for a keyword.
 
 ```bash
-scripts/desearch.py x_user elonmusk --query "AI" --count 10
+python3 scripts/desearch.py x_user elonmusk --query "AI" --count 10
 ```
 
 **Options:**
@@ -148,7 +148,7 @@ scripts/desearch.py x_user elonmusk --query "AI" --count 10
 Fetch the most recent posts from a user's timeline. Retweets include a `retweet` field with the original post.
 
 ```bash
-scripts/desearch.py x_timeline elonmusk --count 20
+python3 scripts/desearch.py x_timeline elonmusk --count 20
 ```
 
 **Options:**
@@ -164,8 +164,8 @@ scripts/desearch.py x_timeline elonmusk --count 20
 List users who retweeted a specific post. Supports cursor-based pagination.
 
 ```bash
-scripts/desearch.py x_retweeters 1982770537081532854
-scripts/desearch.py x_retweeters 1982770537081532854 --cursor "AAAAANextCursorValue=="
+python3 scripts/desearch.py x_retweeters 1982770537081532854
+python3 scripts/desearch.py x_retweeters 1982770537081532854 --cursor "AAAAANextCursorValue=="
 ```
 
 **Options:**
@@ -181,8 +181,8 @@ scripts/desearch.py x_retweeters 1982770537081532854 --cursor "AAAAANextCursorVa
 Fetch a user's tweets-and-replies timeline. Replies have `in_reply_to_screen_name` and `in_reply_to_status_id` set.
 
 ```bash
-scripts/desearch.py x_replies elonmusk --count 10
-scripts/desearch.py x_replies elonmusk --query "AI" --count 10
+python3 scripts/desearch.py x_replies elonmusk --count 10
+python3 scripts/desearch.py x_replies elonmusk --query "AI" --count 10
 ```
 
 **Options:**
@@ -199,8 +199,8 @@ scripts/desearch.py x_replies elonmusk --query "AI" --count 10
 Fetch replies to a specific post by ID.
 
 ```bash
-scripts/desearch.py x_post_replies 1234567890 --count 10
-scripts/desearch.py x_post_replies 1234567890 --query "thanks" --count 5
+python3 scripts/desearch.py x_post_replies 1234567890 --count 10
+python3 scripts/desearch.py x_post_replies 1234567890 --query "thanks" --count 5
 ```
 
 **Options:**
@@ -217,8 +217,8 @@ scripts/desearch.py x_post_replies 1234567890 --query "thanks" --count 5
 Fetch trending topics on X for a location, by its WOEID (Where On Earth ID). Worldwide is `1`; the United States is `23424977`. Only locations X publishes trends for are accepted; an unsupported WOEID is rejected, not replaced with the Worldwide list.
 
 ```bash
-scripts/desearch.py x_trends 1
-scripts/desearch.py x_trends 23424977 --count 50
+python3 scripts/desearch.py x_trends 1
+python3 scripts/desearch.py x_trends 23424977 --count 50
 ```
 
 **Options:**

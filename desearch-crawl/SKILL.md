@@ -31,10 +31,10 @@ Confirm that the version printed is Python 3.12. Keep this environment active wh
 
 ```bash
 # Crawl a webpage (returns clean text by default)
-scripts/desearch.py crawl "https://en.wikipedia.org/wiki/Artificial_intelligence"
+python3 scripts/desearch.py crawl "https://en.wikipedia.org/wiki/Artificial_intelligence"
 
 # Get raw HTML
-scripts/desearch.py crawl "https://example.com" --crawl-format html
+python3 scripts/desearch.py crawl "https://example.com" --crawl-format html
 ```
 
 
@@ -48,12 +48,12 @@ scripts/desearch.py crawl "https://example.com" --crawl-format html
 
 ### Read a documentation page
 ```bash
-scripts/desearch.py crawl "https://docs.python.org/3/tutorial/index.html"
+python3 scripts/desearch.py crawl "https://docs.python.org/3/tutorial/index.html"
 ```
 
 ### Get raw HTML for analysis
 ```bash
-scripts/desearch.py crawl "https://example.com/page" --crawl-format html
+python3 scripts/desearch.py crawl "https://example.com/page" --crawl-format html
 ```
 
 ## Response
