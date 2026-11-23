@@ -8,6 +8,16 @@ metadata: {"clawdbot":{"emoji":"𝕏","homepage":"https://desearch.ai","requires
 
 Search X (Twitter) posts by keyword, user or hashtag. Get a user's timeline, replies, retweeters or trending topics by location, or fetch specific posts by ID or URL. Supports advanced filters like date range, language, engagement thresholds, and media type.
 
+## Data transmission
+
+Search queries, account identifiers such as usernames, post IDs, full post URLs, and other supplied filters or cursors are sent to `https://api.desearch.ai` when used by the selected command. The `DESEARCH_API_KEY` value is sent to the same service in the HTTP `Authorization` header. Submit only inputs you are authorized to share with Desearch. Keep secrets and confidential information out of queries, account parameters and crawl URLs.
+
+## Permissions and allowed tool scope
+
+Use OpenClaw's `exec` tool for the documented `python3 scripts/desearch.py` commands from this skill's directory. The API commands require the delivered script, a supported Python runtime, the `DESEARCH_API_KEY` environment variable and outbound HTTPS to `api.desearch.ai`; they print results to stdout. They need no browser or messaging tools, elevated execution, or unrelated local files. The optional environment setup writes `.venv` in the skill directory.
+
+This is the intended scope, not an enforced permission boundary. Configure access using OpenClaw's [tool policy](https://docs.openclaw.ai/tools) and [exec controls](https://docs.openclaw.ai/tools/exec). [Skill allowlists](https://docs.openclaw.ai/tools/skills#agent-skill-allowlists) do not constrain host shell access. Keep existing execution approvals and restrictions in place; this skill does not grant additional tools or permissions.
+
 ## Setup
 
 Run the setup and command examples below from this skill's directory: the folder containing `SKILL.md` and `scripts/`.
