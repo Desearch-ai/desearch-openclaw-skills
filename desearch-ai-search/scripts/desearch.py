@@ -23,7 +23,11 @@ DESEARCH_BASE = "https://api.desearch.ai"
 
 COMMANDS = ["ai_search", "ai_web", "ai_x"]
 
-WEB_TOOLS = ["web", "hackernews", "reddit", "wikipedia", "youtube", "arxiv"]
+AI_TOOLS = ["web", "twitter"]
+
+SOURCE_HELP = 'AI Search sources: web, twitter. Other source IDs are unsupported and may be rejected. For Reddit results, use POST /search with include_domains set to ["reddit.com"].'
+
+WEB_GUIDANCE = 'For web results, use POST /search. POST /desearch/ai/search/links/web is deprecated. YouTube is not an AI Search source; use the separate YouTube tools documented in the MCP guide.'
 
 DATE_FILTERS = [
     "PAST_24_HOURS",
@@ -90,9 +94,9 @@ def api_request(
 def cmd_ai_search(args):
     body = {"prompt": args.query, "streaming": False}
     if args.tools:
-        body["tools"] = args.tools.split(",")
+        body["tools"] = args.tools
     else:
-        body["tools"] = ["twitter", "web"]
+        body["tools"] = AI_TOOLS.copy()
 
     if args.count:
         body["result_count"] = args.count
@@ -102,14 +106,11 @@ def cmd_ai_search(args):
 
 
 def cmd_ai_web(args):
-    tools = args.tools.split(",") if args.tools else ["web"]
-    body = {
-        "prompt": args.query,
-        "tools": tools,
-    }
-    if args.count:
+    print(WEB_GUIDANCE, file=sys.stderr)
+    body = {"query": args.query}
+    if args.count is not None:
         body["count"] = args.count
-    return api_request("POST", "/desearch/ai/search/links/web", body=body)
+    return api_request("POST", "/search", body=body)
 
 
 def cmd_ai_x(args):
@@ -221,7 +222,14 @@ TEXT_FORMATTERS = {
 }
 
 
-def main():
+def source_ids(value):
+    tools = [tool.strip() for tool in value.split(",")]
+    if any(tool not in AI_TOOLS for tool in tools):
+        raise argparse.ArgumentTypeError(SOURCE_HELP)
+    return tools
+
+
+def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Desearch AI Search CLI - AI-powered multi-source search",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -236,13 +244,23 @@ def main():
     parser.add_argument(
         "--tools",
         "-t",
-        help="Comma-separated list of tools: web,hackernews,reddit,wikipedia,youtube,arxiv,twitter",
+        type=source_ids,
+        help=SOURCE_HELP + " ai_web accepts only web; ai_x does not take --tools.",
     )
     parser.add_argument(
         "--date-filter", choices=DATE_FILTERS, help="Date filter for AI search"
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    if args.command == "ai_web":
+        if args.tools is not None and args.tools != ["web"]:
+            parser.error("ai_web accepts only --tools web. " + WEB_GUIDANCE)
+        if args.count is not None and args.count not in (10, 15, 20):
+            parser.error("ai_web --count must be 10, 15 or 20")
+    if args.command == "ai_x" and args.tools is not None:
+        parser.error("ai_x uses X automatically; --tools applies to ai_search or ai_web")
+    if args.command != "ai_search" and args.date_filter is not None:
+        parser.error("--date-filter applies only to ai_search")
 
     handler = COMMAND_HANDLERS[args.command]
     results = handler(args)

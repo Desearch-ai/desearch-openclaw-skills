@@ -6,7 +6,7 @@ A collection of [OpenClaw](https://openclaw.ai) skills that bring [Desearch](htt
 
 | Skill | Emoji | Description |
 |-------|-------|-------------|
-| [desearch-ai-search](desearch-ai-search/) | 🔎 | AI search that summarizes results from web, X, Reddit, Hacker News, YouTube, arXiv and Wikipedia, with links to the sources. |
+| [desearch-ai-search](desearch-ai-search/) | 🔎 | AI Search searches X posts and the web and can return a summary. Supported AI Search source IDs are web and twitter. For web-only results, use the Search API. |
 | [desearch-extract](desearch-extract/) | 📄 | Extract clean text or raw HTML from any webpage through the canonical Extract API |
 | [desearch-facebook-search](desearch-facebook-search/) | 📘 | Meta Ad Library search, plus public Facebook pages, their posts, single posts, and comments |
 | [desearch-instagram-search](desearch-instagram-search/) | 📸 | Public Instagram profile search, profiles, their posts, single posts, comments, and hashtag posts |
@@ -46,7 +46,7 @@ Each skill uses a `scripts/desearch.py` entry point. Examples:
 
 ```bash
 # AI-summarized multi-source search
-desearch-ai-search/scripts/desearch.py ai_search "What is Bittensor?" --tools web,reddit,youtube
+desearch-ai-search/scripts/desearch.py ai_search "What is Bittensor?" --tools web,twitter
 
 # Extract a webpage
 desearch-extract/scripts/desearch.py extract "https://en.wikipedia.org/wiki/Artificial_intelligence"

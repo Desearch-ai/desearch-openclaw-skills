@@ -1,12 +1,12 @@
 ---
 name: desearch-ai-search
-description: AI search that summarizes results from web, X, Reddit, Hacker News, YouTube, arXiv and Wikipedia, with links to the sources. Use this when you need a synthesized answer or curated links from across the internet and social platforms.
+description: AI Search searches X posts and the web and can return a summary. Supported AI Search source IDs are web and twitter. For web-only results, use the Search API.
 metadata: {"clawdbot":{"emoji":"🔎","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # AI Search By Desearch
 
-AI search that summarizes results from web, X, Reddit, Hacker News, YouTube, arXiv and Wikipedia, with links to the sources.
+AI Search searches X posts and the web and can return a summary. Supported AI Search source IDs are web and twitter. For web-only results, use the Search API.
 
 ## Quick Start
 
@@ -15,60 +15,50 @@ Requires Python 3.10 or newer as `python3` on `PATH`. See the [Python setup inst
 1. Get an API key from https://console.desearch.ai
 2. Set environment variable: `export DESEARCH_API_KEY='your-key-here'`
 
-## Usage
+Run the following from this skill's directory:
 
 ```bash
-# AI contextual search (summarized results from multiple sources)
-desearch.py ai_search "What is Bittensor?" --tools web,reddit,youtube
+# AI Search with web and X sources
+scripts/desearch.py ai_search "What is Bittensor?" --tools web,twitter
 
-# AI web link search (curated links from specific sources)
-desearch.py ai_web "machine learning papers" --tools arxiv,web,wikipedia
+# Web results through the Search API (compatibility command)
+scripts/desearch.py ai_web "machine learning papers" --tools web
 
-# AI X/Twitter link search (curated post links)
-desearch.py ai_x "crypto market trends" --count 20
+# AI X/Twitter link search
+scripts/desearch.py ai_x "crypto market trends" --count 20
 ```
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `ai_search` | AI-summarized search across multiple sources. Returns aggregated results with context. |
-| `ai_web` | AI-curated link search. Returns the most relevant links from chosen sources. |
-| `ai_x` | AI-powered X/Twitter search. Returns the most relevant post links for a topic. |
+| `ai_search` | Search X posts and the web, with an optional summary. |
+| `ai_web` | Compatibility command for web results using `POST /search`. Sends `query` instead of `prompt`. |
+| `ai_x` | AI-powered X/Twitter search returning post links. |
+
+## Sources
+
+AI Search sources: web, twitter. Other source IDs are unsupported and may be rejected. For Reddit results, use POST /search with include_domains set to ["reddit.com"].
+
+For web results, use POST /search. POST /desearch/ai/search/links/web is deprecated. YouTube is not an AI Search source; use the separate YouTube tools documented in the MCP guide.
+
+See the [MCP guide](https://desearch.ai/docs/guide/sdk/mcp) for the separate YouTube tools and the [Search API guide](https://desearch.ai/docs/guide/apis/search-api) for domain filtering.
 
 ## Options
 
 | Option | Description | Applies to |
 |--------|-------------|------------|
-| `--tools`, `-t` | Sources to search: `web`, `hackernews`, `reddit`, `wikipedia`, `youtube`, `arxiv`, `twitter` (comma-separated) | Both |
-| `--count`, `-n` | Number of results (default: 10, max: 200) | All |
+| `--tools`, `-t` | Comma-separated `web, twitter` (default: `web,twitter`). `ai_web` accepts only `web`; `ai_x` uses X automatically. | `ai_search`, `ai_web` |
+| `--count`, `-n` | Number of results. `ai_web` accepts 10, 15 or 20 (Search API default: 10). | All |
 | `--date-filter` | Time filter: `PAST_24_HOURS`, `PAST_2_DAYS`, `PAST_WEEK`, `PAST_2_WEEKS`, `PAST_MONTH`, `PAST_2_MONTHS`, `PAST_YEAR`, `PAST_2_YEARS` | `ai_search` |
 
-## Examples
+## REST example
 
-### Research a topic with AI summary
 ```bash
-desearch.py ai_search "What are the latest developments in quantum computing?" --tools web,arxiv,reddit
-```
-
-### Find academic papers
-```bash
-desearch.py ai_web "transformer architecture improvements 2026" --tools arxiv,web
-```
-
-### Get recent news from multiple sources
-```bash
-desearch.py ai_search "AI regulation news" --tools web,hackernews,reddit --date-filter PAST_WEEK
-```
-
-### Find YouTube tutorials
-```bash
-desearch.py ai_web "learn rust programming" --tools youtube,web
-```
-
-### AI-curated X/Twitter links on a topic
-```bash
-desearch.py ai_x "latest AI breakthroughs" --count 20
+curl -X POST https://api.desearch.ai/desearch/ai/search \
+  -H "Authorization: ${DESEARCH_API_KEY}" \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"What is Bittensor?","tools":["web","twitter"],"streaming":false}'
 ```
 
 ## Response
