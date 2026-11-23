@@ -10,7 +10,17 @@ Search the web and get SERP-style results with titles, URLs and snippets. Use th
 
 ## Quick Start
 
-Requires Python 3.10 or newer as `python3` on `PATH`. See the [Python setup instructions](../README.md#requirements) before running the commands below.
+Run the setup and command examples below from this skill's directory: the folder containing `SKILL.md` and `scripts/`.
+
+Requires Python 3.10 or newer as `python3` on `PATH`. With Python 3.12 installed, create and activate an environment in this skill's directory:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python3 --version
+```
+
+Confirm that the version printed is Python 3.12. Keep this environment active while running the examples. If `python3.12` is unavailable, install Python 3.12 first. For OpenClaw, ensure its process also finds Python 3.10 or newer as `python3` on `PATH`. The scripts use only the Python standard library.
 
 1. Get an API key from https://console.desearch.ai
 2. Set environment variable: `export DESEARCH_API_KEY='your-key-here'`
@@ -19,10 +29,10 @@ Requires Python 3.10 or newer as `python3` on `PATH`. See the [Python setup inst
 
 ```bash
 # Basic web search
-desearch.py web "quantum computing"
+scripts/desearch.py web "quantum computing"
 
 # Paginated results
-desearch.py web "quantum computing" --start 10
+scripts/desearch.py web "quantum computing" --start 10
 ```
 
 ## Options
@@ -35,7 +45,7 @@ desearch.py web "quantum computing" --start 10
 
 ### Example
 ```bash
-desearch.py web "best sights in Georgia"
+scripts/desearch.py web "best sights in Georgia"
 ```
 
 ```json
