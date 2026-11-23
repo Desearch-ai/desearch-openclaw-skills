@@ -1,7 +1,7 @@
 ---
 name: desearch-x-search
 description: Search X (Twitter) posts by keyword, user or hashtag. Get a user's timeline, replies, retweeters or trending topics by location, or fetch specific posts by ID or URL. Supports advanced filters like date range, language, engagement thresholds, and media type.
-metadata: {"clawdbot":{"emoji":"𝕏","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
+metadata: {"openclaw":{"emoji":"𝕏","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # X (Twitter) Search By Desearch

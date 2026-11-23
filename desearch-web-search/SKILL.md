@@ -1,7 +1,7 @@
 ---
 name: desearch-web-search
 description: Search the web and get SERP-style results with titles, URLs and snippets. Use this for general web queries when you need links to sources.
-metadata: {"clawdbot":{"emoji":"🌐","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
+metadata: {"openclaw":{"emoji":"🌐","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # Web Search By Desearch

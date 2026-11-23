@@ -1,7 +1,7 @@
 ---
 name: desearch-ai-search
 description: AI Search searches X posts and the web and can return a summary. Supported AI Search source IDs are web and twitter. For web-only results, use the Search API.
-metadata: {"clawdbot":{"emoji":"🔎","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
+metadata: {"openclaw":{"emoji":"🔎","homepage":"https://desearch.ai","requires":{"env":["DESEARCH_API_KEY"]}}}
 ---
 
 # AI Search By Desearch
